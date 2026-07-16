@@ -1260,10 +1260,17 @@ async function handleEvent(event) {
     'https://raw.githubusercontent.com/xlisasakngam-sudo/line-bot-PoNee/main/images/messageImage_1784231491384_0.jpg',
     'https://raw.githubusercontent.com/xlisasakngam-sudo/line-bot-PoNee/main/images/messageImage_1784231589040_0.jpg'
   ];
-  var winWords = ['เกมไหนแตก','เกมแตก','แตกง่าย','แตกดี','กำลังมา','เกมไหนดี',
+  var winWords = [
+    'เกมไหนแตก','เกมแตก','แตกง่าย','แตกดี','กำลังมา','เกมไหนดี',
     'ค่ายไหนดี','แนะนำเกม','เล่นเกมไหน','เกมแนะนำ','ตอนนี้เกม',
     'เกมกำลัง','สล็อตแตก','สล็อตดี','pg แตก','joker แตก',
-    'แนะนำสล็อต','สล็อตไหนดี','สล็อตไหนแตก'];
+    'แนะนำสล็อต','สล็อตไหนดี','สล็อตไหนแตก',
+    'ขอเกม','เกมที่แตก','เกมแตกง่าย','เกมดี','มีรูปไหม','ขอรูป',
+    'ตัวไหนแตก','ตัวไหนดี','เล่นตัวไหน','ตัวไหนกำลังมา',
+    'แตกบ่อย','แตกหนัก','แตกเยอะ','แตกง่ายไหม',
+    'เกมน่าเล่น','น่าเล่น','ลองเล่น','เล่นอะไรดี',
+    'ค่ายไหน','pg ดี','joker ดี','pp ดี','amb ดี',
+  ];
   var isWinQ = winWords.some(function(w) { return msgText.toLowerCase().includes(w); });
   if (isWinQ) {
     var winUrl = WIN_IMAGES[Math.floor(Math.random() * WIN_IMAGES.length)];
