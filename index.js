@@ -15,26 +15,27 @@ const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const GITHUB_REPO = process.env.GITHUB_REPO;
 
 // ==================== CONSTANTS ====================
-const REGISTER_URL = 'https://www.royalone.pro/';
-const FREE_CREDIT_LINE = 'การแจกเครดิตต่างๆติดต่อที่นะคะ \u{1F495}\nhttps://line.me/R/ti/p/@338ucpsr?oat_content=url&ts=01291246';
-const RESET_GROUP_1 = '-3958235642';
-const RESET_GROUP_2 = '-1003958235642';
+const REGISTER_URL = 'https://shorturl.asia/Uz5mH';
+const FREE_CREDIT_LINE = 'ติดต่อโปรโมชั่นได้เลยนะคะ 💕\nhttps://line.me/R/ti/p/@454npgay';
+const RESET_GROUP_1 = '-1003940320091';
+const RESET_GROUP_2 = '-1003957391663';
 const THIRTY_MIN = 30 * 60;
 const TWO_HOURS_MS = 2 * 60 * 60 * 1000;
 
 // ==================== WITHDRAW SCHEDULE ====================
 // ปิดถอนทุกวัน เวลา 02:00 - 07:00 (เวลาไทย UTC+7) — ฝากได้ตามปกติ
-const DAILY_WITHDRAW_CLOSE_START = '02:00';
-const DAILY_WITHDRAW_CLOSE_END   = '07:00';
+const DAILY_WITHDRAW_CLOSE_START = '23:30';
+const DAILY_WITHDRAW_CLOSE_END   = '00:30';
 
 function isWithdrawClosed() {
   var now = new Date();
   var thaiTime = new Date(now.getTime() + 7 * 60 * 60 * 1000);
-  var hhmm = thaiTime.toISOString().substring(11, 16); // 'HH:MM'
-  var dateStr = thaiTime.toISOString().substring(0, 10); // 'YYYY-MM-DD'
-
-  if (hhmm >= DAILY_WITHDRAW_CLOSE_START && hhmm < DAILY_WITHDRAW_CLOSE_END) {
-    return { closed: true, reason: 'ธนาคารปิดปรับปรุงระบบชั่วคราว', until: dateStr + ' ' + DAILY_WITHDRAW_CLOSE_END };
+  var hhmm = thaiTime.toISOString().substring(11, 16);
+  var dateStr = thaiTime.toISOString().substring(0, 10);
+  // ช่วง 23:30-00:30 ข้ามเที่ยงคืน
+  var closed = (hhmm >= '23:30') || (hhmm < '00:30');
+  if (closed) {
+    return { closed: true, reason: 'ธนาคารอัปเดตระบบ', until: dateStr + ' 00:30' };
   }
   return { closed: false };
 }
@@ -509,7 +510,7 @@ async function aiChat(userMsg, history) {
     : '';
 
   var lines = [
-    'คุณคือ "น้องมายด์" แอดมินเว็บพนันออนไลน์ ผู้หญิง น่ารัก บริการดีมาก',
+    'คุณคือ "น้องนีน่า" แอดมินเว็บพนันออนไลน์ ผู้หญิง น่ารัก บริการดีมาก',
     '',
     '## วิธีคิดก่อนตอบ (หัวใจสำคัญ)',
     'ก่อนตอบทุกครั้ง ให้คิด:',
@@ -519,23 +520,23 @@ async function aiChat(userMsg, history) {
     'แล้วค่อยตอบให้ตรงจุด',
     '',
     '## ข้อมูลที่รู้จัก',
-    'ฝากขั้นต่ำ 50 บาท | ถอนขั้นต่ำ 100 บาท',
-    'เทิร์น = เล่น 1 เท่าของยอดฝากก่อนถอน (ฝาก 100 เล่น 100 แล้วถอนได้)',
-    'แคชแบ็ก = ยอดเสีย 5% ทุกวัน ตัดยอด 23.00 น. เงินเข้า 00.00 น. รอประมาณ 20 นาทีหลัง 00.00 น.',
-    'โปร/แจก = LINE @338ucpsr',
-    'ถอน = ปกติ 3-30 นาที',
-    'ฝาก = โอนผ่านธนาคารเท่านั้น แนบสลิปที่หน้าเว็บ เงินเข้า 1-3 นาที',
-    'ฝากถอนได้เฉพาะธนาคารเท่านั้น ไม่รับช่องทางอื่น',
+    'ฝากขั้นต่ำ 1 บาท | ถอนขั้นต่ำ 10 บาท',
+    'เทิร์น = เล่น 50% ของยอดฝากก่อนถอน เช่น ฝาก 100 เล่น 50 แล้วถอนได้',
+    'แคชแบ็ก = สล็อต 10% คาสิโน 5% ยิงปลา 5% ตัดยอด 23.30 น. เงินเข้า 00.00 น. รอ 30 นาที',
+    'โปร/แจก = LINE @454npgay',
+    'ถอน = ปกติ 2-10 นาที',
+    'ฝาก = โอนผ่านธนาคารหรือ TrueMoney Wallet ฝากขั้นต่ำ 10 บาท เงินเข้า 1-3 นาที',
+    'ฝากผ่านธนาคารหรือ TrueMoney Wallet ก็ได้ค่ะ ฝากขั้นต่ำ TrueMoney 10 บาท',
     'ชื่อบัญชีต้องตรงกับชื่อที่สมัคร ถ้าชื่อไม่ตรงจะฝากถอนไม่ได้',
     'แนบสลิปไม่ได้ = ส่งสลิปในแชท + เบอร์ แอดมินแนบให้',
     'โค้ด/คูปอง = กดโลโก้กลางด้านล่างเว็บ',
     'เกม = สล็อต (PG, Joker, PP, AMB และอีกกว่า 20 ค่าย), คาสิโนสด (Sexy Gaming, SA Gaming, Pretty Gaming, WM, Evolution, Allbet), กีฬา (SBOBET, RB7, SABA), ยิงปลา (JILI), หวย, ไฮโล, รูเล็ต',
     'แต้มสะสม/Loyalty = ยังไม่เปิดให้แลกของรางวัล บอกลูกค้าว่าปิดบริการอยู่',
     'โค้ด/คูปอง = กดโลโก้กลางด้านล่างเว็บ → ใช้คูปอง (เปิดปกติ)',
-    'ของแจก/เครดิตฟรี/โปร = ติดต่อ LINE @338ucpsr (แยกจากแต้ม)',
-    'แนะนำเพื่อน = ได้ยอดเสียของเพื่อน 3% ทุกวัน เงินเข้าออโต้ 00.00 น. ไม่เกิน 00.30 น. (ถ้าเพื่อนมีรายการเล่น)',
-    'ลิงก์แนะนำเพื่อน = อยู่ในหน้า "แนะนำเพื่อน" ในเว็บ เอาลิงก์ให้เพื่อนกดสมัครได้เลย',
-    'ไม่มีกลุ่ม LINE/TG | ไม่รู้จักสตรีมเมอร์/จารโต',
+    'ของแจก/เครดิตฟรี/โปร = ติดต่อ LINE @454npgay (แยกจากแต้ม)',
+    'แนะนำเพื่อน = คำนวนจากยอดฝากเพื่อน 7% รับทุกวันศุกร์ (เพื่อนต้องมีรายการเล่น) เงินเข้าออโต้ 00.00-00.30 น.',
+    'ลิงก์แนะนำเพื่อน = อยู่ในหน้า "แนะนำเพื่อน" ในเว็บ คัดลอกลิงก์ส่งให้เพื่อนสมัครได้เลย',
+    'ไม่มีมีกลุ่ม TG: https://t.me/+4Kdjj4YtrFY5NmRl | ซอลญ่า คือ LINE @757xinte',
     '',
     '## สไตล์',
     'ตอบสั้น 1-2 บรรทัด เหมือนแอดมินคนจริง',
@@ -548,7 +549,7 @@ async function aiChat(userMsg, history) {
     '##CASHBACK## = ลูกค้าถามเรื่องแคชแบ็ก/ยอดเสียทุกกรณี — ห้ามตอบเอง ใช้ ##CASHBACK## เสมอ',
     '',
     '## ตัวอย่างการคิด (เรียนรู้วิธีคิด)',
-    '"ถอนไปนานแล้วยังไม่ได้" = ปัญหาถอน → รอ 3-30 นาที ถ้าเกินแจ้งน้องได้เลยค่ะ',
+    '"ถอนไปนานแล้วยังไม่ได้" = ปัญหาถอน → รอ 2-10 นาที ถ้าเกินแจ้งน้องได้เลยค่ะ',
     '"ฝากตังไปหายเลย" = ฝากไม่เข้า → ##ASK_SLIP##',
     '"555 แตกเลย" = ดีใจ → เย่ๆ ดีใจด้วยนะคะ 🎉',
     '"รหัสมันไม่ยอมเข้า" = login ไม่ได้ → ##RESET##',
@@ -705,7 +706,7 @@ async function handleEvent(event) {
     var mediaKey = 'media:' + userId;
     if (!(await redis.get(mediaKey))) {
       await redis.set(mediaKey, '1', 'EX', 60);
-      await lineReply(replyToken, txt('มีอะไรให้น้องมายด์ช่วยไหมคะ? \u{1F495}'));
+      await lineReply(replyToken, txt('มีอะไรให้น้องนีน่าช่วยไหมคะ? \u{1F495}'));
     }
     return;
   }
@@ -730,7 +731,7 @@ async function handleEvent(event) {
             await clearSlipState(userId);
             await tgSlipAlert(displayName, 'ลูกค้าส่งสลิปมาในแชท (แนบที่เว็บไม่ได้)');
             await markHandled(userId);
-            var slipInChatMsg = 'รับสลิปแล้วค่ะ \u{1F4CB}\nน้องมายด์กำลังดำเนินการให้นะคะ \u23F0';
+            var slipInChatMsg = 'รับสลิปแล้วค่ะ \u{1F4CB}\nน้องนีน่ากำลังดำเนินการให้นะคะ \u23F0';
             await lineReply(replyToken, txt(slipInChatMsg));
             await addHistory(userId, 'bot', slipInChatMsg);
           } else {
@@ -803,7 +804,7 @@ async function handleEvent(event) {
 
   // ====== ไม่ active 2 ชั่วโมง ======
   if (isInactive) {
-    await lineReply(replyToken, txt('มีอะไรให้น้องมายด์ช่วยไหมคะ? \u{1F495}'));
+    await lineReply(replyToken, txt('มีอะไรให้น้องนีน่าช่วยไหมคะ? \u{1F495}'));
     return;
   }
 
@@ -852,7 +853,7 @@ async function handleEvent(event) {
         await clearResetInfo(userId);
         await tgReset(displayName, summary);
         await setResetCD(userId);
-        var doneReset = 'รับข้อมูลแล้วค่ะ \u{1F4CB}\nน้องมายด์กำลังทำรายการให้นะคะ \u23F0';
+        var doneReset = 'รับข้อมูลแล้วค่ะ \u{1F4CB}\nน้องนีน่ากำลังทำรายการให้นะคะ \u23F0';
         await lineReply(replyToken, txt(doneReset));
         await addHistory(userId, 'bot', doneReset);
 
@@ -868,7 +869,7 @@ async function handleEvent(event) {
         if (!info.phone) missing.push('เบอร์โทร');
         if (!info.bank) missing.push('เลขบัญชีธนาคาร');
         if (missing.length > 0) {
-          await lineReply(replyToken, txt('ขอ ' + missing.join(' และ ') + ' ด้วยนะคะ'));
+          await lineReply(replyToken, txt('🙏รบกวนแจ้งข้อมูลให้ครบเพื่อความรวดเร็วในการทำรายการนะคะ ขอ ' + missing.join(' และ ') + ' ด้วยค่ะ'));
         }
       }
       return;
@@ -903,7 +904,7 @@ async function handleEvent(event) {
       ].filter(Boolean).join('\n');
       await tgSlipAlert(displayName, conSum);
       await markHandled(userId);
-      var doneMsg = 'รับแล้วค่ะ \u{1F4CB}\nน้องมายด์กำลังดำเนินการให้นะคะ \u23F0';
+      var doneMsg = 'รับแล้วค่ะ \u{1F4CB}\nน้องนีน่ากำลังดำเนินการให้นะคะ \u23F0';
       await lineReply(replyToken, txt(doneMsg));
       await addHistory(userId, 'bot', doneMsg);
       return;
@@ -920,7 +921,7 @@ async function handleEvent(event) {
         await addHistory(userId, 'bot', askMsg);
       } else {
         // ขอไปแล้ว → บอกว่ากำลังดำเนินการอยู่
-        await lineReply(replyToken, txt('น้องมายด์กำลังดำเนินการให้อยู่นะคะ รอสักครู่ค่ะ \u23F0'));
+        await lineReply(replyToken, txt('น้องนีน่ากำลังดำเนินการให้อยู่นะคะ รอสักครู่ค่ะ \u23F0'));
       }
       return;
     }
@@ -951,7 +952,7 @@ async function handleEvent(event) {
       ].filter(Boolean).join('\n');
       await tgSlipAlert(displayName, infoSum);
       await markHandled(userId);
-      var doneInfo = 'รับแล้วค่ะ \u{1F4CB}\nน้องมายด์กำลังดำเนินการให้นะคะ \u23F0';
+      var doneInfo = 'รับแล้วค่ะ \u{1F4CB}\nน้องนีน่ากำลังดำเนินการให้นะคะ \u23F0';
       await lineReply(replyToken, txt(doneInfo));
       await addHistory(userId, 'bot', doneInfo);
       return;
@@ -966,13 +967,13 @@ async function handleEvent(event) {
       var urgentText = '\u{1F6A8}\u{1F6A8} ลูกค้ายืนยันว่ายังไม่เข้า!\nชื่อไลน์: ' + displayName + '\nข้อความ: ' + msgText + '\n\n⚡ ช่วยตรวจสอบด่วนด้วยครับ';
       await tgMain(urgentText, stopResumeMarkup(userId));
       await tgMain(urgentText, stopResumeMarkup(userId));
-      await lineReply(replyToken, txt('รับทราบแล้วค่ะ น้องมายด์ส่งเรื่องให้แอดมินด่วนแล้วนะคะ \u23F0\nรอสักครู่นะคะ'));
+      await lineReply(replyToken, txt('รับทราบแล้วค่ะ น้องนีน่าส่งเรื่องให้แอดมินด่วนแล้วนะคะ \u23F0\nรอสักครู่นะคะ'));
       return;
     }
 
     // ถ้าขอไปแล้วแต่ยังไม่ได้เบอร์ → บอกรอ ไม่ขอซ้ำ
     if (await isHandled(userId)) {
-      await lineReply(replyToken, txt('น้องมายด์กำลังดำเนินการให้อยู่นะคะ รอสักครู่ค่ะ \u23F0'));
+      await lineReply(replyToken, txt('น้องนีน่ากำลังดำเนินการให้อยู่นะคะ รอสักครู่ค่ะ \u23F0'));
       return;
     }
 
@@ -991,7 +992,7 @@ async function handleEvent(event) {
     var lossNum = msgText.replace(/,/g, '').match(/\d+(\.\d+)?/);
     if (lossNum) {
       var loss = parseFloat(lossNum[0]);
-      var cashback = Math.floor(loss * 0.05);
+      var cashback = Math.floor(loss * 0.10);
       await clearCashbackState(userId);
       var cbMsg = 'ยอดเสีย ' + loss.toLocaleString() + ' บาท ได้แคชแบ็กคืน ' + cashback.toLocaleString() + ' บาทค่ะ \u{1F4B0}\nเงินเข้าอัตโนมัติหลัง 00.00 น. รอประมาณ 30 นาทีนะคะ \u{1F495}';
       await lineReply(replyToken, txt(cbMsg));
@@ -1034,7 +1035,7 @@ async function handleEvent(event) {
     if (lossNumDirect && isAskingHowMuch) {
       // มีตัวเลข + ถามว่าได้เท่าไหร่ → คำนวนทันที
       var lossDirect = parseFloat(lossNumDirect[0]);
-      var cashbackDirect = Math.floor(lossDirect * 0.05);
+      var cashbackDirect = Math.floor(lossDirect * 0.10);
       var cbDirectMsg = 'ยอดเสีย ' + lossDirect.toLocaleString() + ' บาท ได้แคชแบ็กคืน ' + cashbackDirect.toLocaleString() + ' บาทค่ะ \u{1F4B0}\nเงินเข้าอัตโนมัติหลัง 00.00 น. รอประมาณ 30 นาทีนะคะ \u{1F495}';
       await lineReply(replyToken, txt(cbDirectMsg));
       await addHistory(userId, 'bot', cbDirectMsg);
@@ -1074,23 +1075,23 @@ async function handleEvent(event) {
       await addHistory(userId, 'bot', closedCancelMsg);
     } else {
       await tgAlert(displayName, 'ยกเลิกการถอน: ' + msgText, ts, userId);
-      var cancelMsg2 = 'รับเรื่องแล้วค่ะ \u{1F4CB}\nน้องมายด์กำลังดำเนินการให้นะคะ \u23F0';
+      var cancelMsg2 = 'รับเรื่องแล้วค่ะ \u{1F4CB}\nน้องนีน่ากำลังดำเนินการให้นะคะ \u23F0';
       await lineReply(replyToken, txt(cancelMsg2));
       await addHistory(userId, 'bot', cancelMsg2);
     }
     return;
   }
 
-  // 2. ถอนเกิน 30 นาที
-  var withdrawOverdue = ['เกินแล้ว','นานมากแล้ว','เกิน 30','มันไม่เข้า','ยังไม่เข้าเลย'].some(function(w) { return msgText.includes(w); });
+  // 2. ถอนเกิน 10 นาที
+  var withdrawOverdue = ['เกินแล้ว','นานมากแล้ว','เกิน 10','มันไม่เข้า','ยังไม่เข้าเลย'].some(function(w) { return msgText.includes(w); });
   if (withdrawOverdue && (msgText.includes('ถอน') || (await hasSlipSent(userId) === false && msgText.includes('ไม่เข้า')))) {
     if (withdrawStatus.closed) {
       var closedOverdueMsg = formatWithdrawClosedMsg(withdrawStatus.until, msgText);
       await lineReply(replyToken, txt(closedOverdueMsg));
       await addHistory(userId, 'bot', closedOverdueMsg);
     } else {
-      await tgAlert(displayName, 'ถอนเกิน 30 นาที: ' + msgText, ts, userId);
-      var overdueMsg2 = 'รับเรื่องแล้วค่ะ \u{1F4CB} น้องมายด์กำลังดำเนินการให้นะคะ \u23F0';
+      await tgAlert(displayName, 'ถอนเกิน 10 นาที: ' + msgText, ts, userId);
+      var overdueMsg2 = 'รับเรื่องแล้วค่ะ \u{1F4CB} น้องนีน่ากำลังดำเนินการให้นะคะ \u23F0';
       await lineReply(replyToken, txt(overdueMsg2));
       await addHistory(userId, 'bot', overdueMsg2);
     }
@@ -1112,7 +1113,7 @@ async function handleEvent(event) {
   if (isShortNotIn && !hasWithdrawCtx) {
     // ถ้าส่ง TG ไปแล้ว → บอทรับทราบ ไม่ขอซ้ำ
     if (await isHandled(userId)) {
-      await lineReply(replyToken, txt('รับทราบแล้วนะคะ น้องมายด์กำลังดำเนินการให้อยู่ค่ะ \u23F0'));
+      await lineReply(replyToken, txt('รับทราบแล้วนะคะ น้องนีน่ากำลังดำเนินการให้อยู่ค่ะ \u23F0'));
       return;
     }
     if (await hasSlipSent(userId)) {
@@ -1168,7 +1169,7 @@ async function handleEvent(event) {
         await lineReply(replyToken, txt(askPhoneMsg));
         await addHistory(userId, 'bot', askPhoneMsg);
       } else {
-        await lineReply(replyToken, txt('น้องมายด์กำลังดำเนินการให้อยู่นะคะ รอสักครู่ค่ะ \u23F0'));
+        await lineReply(replyToken, txt('น้องนีน่ากำลังดำเนินการให้อยู่นะคะ รอสักครู่ค่ะ \u23F0'));
       }
     } else {
       var askSlip = 'ขอสลิปมาด้วยนะคะ \u{1F4B8}';
@@ -1185,7 +1186,7 @@ async function handleEvent(event) {
   }
   if (aiReply.includes('##ADMIN##') || aiReply.includes('##ADMIN_LINK##')) {
     await tgAlert(displayName, msgText + ' [ต้องการแอดมิน]', ts, userId);
-    var adminMsg = 'น้องมายด์กำลังดำเนินการให้นะคะ \u23F0';
+    var adminMsg = 'น้องนีน่ากำลังดำเนินการให้นะคะ \u23F0';
     await lineReply(replyToken, txt(adminMsg));
     await addHistory(userId, 'bot', adminMsg);
     return;
@@ -1199,18 +1200,18 @@ async function handleEvent(event) {
 
     } else if (m.includes('ถอน')) {
       if (m.includes('ขั้นต่ำ') || m.includes('เท่าไหร่') || m.includes('เท่าไร') || m.includes('กี่บาท')) {
-        await lineReply(replyToken, txt('ถอนขั้นต่ำ 100 บาทนะคะ \u{1F4B8}'));
+        await lineReply(replyToken, txt('ถอนขั้นต่ำ 10 บาทนะคะ \u{1F4B8}'));
       } else if (m.includes('นาน') || m.includes('กี่นาที') || m.includes('ใช้เวลา') || m.includes('นานไหม') || m.includes('เร็ว')) {
-        await lineReply(replyToken, txt('ปกติถอนภายใน 3-30 นาทีนะคะ \u23F0\nถ้าเกิน 30 นาทีแจ้งน้องได้เลยค่ะ'));
+        await lineReply(replyToken, txt('ปกติถอนภายใน 2-10 นาทีนะคะ \u23F0\nถ้าเกิน 10 นาทีแจ้งน้องได้เลยค่ะ'));
       } else if (m.includes('ไม่เข้า') || m.includes('ไม่ได้') || m.includes('ช้า') || m.includes('ไม่มา')) {
-        await lineReply(replyToken, txt('รอ 3-30 นาทีก่อนนะคะ \u23F0\nถ้าเกินแล้วยังไม่เข้าแจ้งน้องได้เลยค่ะ'));
+        await lineReply(replyToken, txt('รอ 2-10 นาทีก่อนนะคะ \u23F0\nถ้าเกินแล้วยังไม่เข้าแจ้งน้องได้เลยค่ะ'));
       } else {
-        await lineReply(replyToken, txt('ถอนขั้นต่ำ 100 บาท ปกติเงินเข้า 3-30 นาทีนะคะ \u{1F4B8}'));
+        await lineReply(replyToken, txt('ถอนขั้นต่ำ 10 บาท ปกติเงินเข้า 2-10 นาทีนะคะ \u{1F4B8}'));
       }
 
     } else if (m.includes('ฝาก') || m.includes('เติม') || m.includes('โอนเงิน')) {
       if (m.includes('ขั้นต่ำ') || m.includes('เท่าไหร่') || m.includes('เท่าไร') || m.includes('กี่บาท')) {
-        await lineReply(replyToken, txt('ฝากขั้นต่ำ 50 บาทนะคะ \u{1F4B8}'));
+        await lineReply(replyToken, txt('ฝากขั้นต่ำ 1 บาทนะคะ \u{1F4B8}'));
       } else if (m.includes('ไม่เข้า') || m.includes('ไม่ได้') || m.includes('หาย')) {
         if (await hasSlipSent(userId)) {
           await lineReply(replyToken, txt('รอสักครู่นะคะ กำลังตรวจสอบให้ \u{1F4CB}'));
@@ -1221,11 +1222,11 @@ async function handleEvent(event) {
           await addHistory(userId, 'bot', d2);
         }
       } else {
-        await lineReply(replyToken, txt('ฝากขั้นต่ำ 50 บาท โอนแล้วแนบสลิปที่หน้าเว็บได้เลยค่ะ \u{1F4F1}'));
+        await lineReply(replyToken, txt('ฝากขั้นต่ำ 1 บาท โอนแล้วแนบสลิปที่หน้าเว็บได้เลยค่ะ \u{1F4F1}'));
       }
 
     } else if (m.includes('เทิร์น') || m.includes('turn') || m.includes('ต้องเล่น') || m.includes('เล่นกี่')) {
-      await lineReply(replyToken, txt('เล่น 1 เท่าของยอดฝากก่อนถอนนะคะ\nเช่น ฝาก 100 ต้องเล่น 100 แล้วถอนได้เลยค่ะ'));
+      await lineReply(replyToken, txt('เล่น 50% ของยอดฝากก่อนถอนนะคะ\nเช่น ฝาก 100 ต้องเล่น 50 แล้วถอนได้เลยค่ะ'));
 
     } else if (m.includes('แคชแบ็ก') || m.includes('cashback') || m.includes('ยอดเสีย') || m.includes('คืนยอด') || m.includes('โบนัสเสีย')) {
       await lineReply(replyToken, txt('มีแคชแบ็กยอดเสีย 5% ทุกวันค่ะ \u{1F4B0}\nตัวอย่าง เสีย 1,000 บาท ได้คืน 50 บาทค่ะ\nตัดยอด 23.00 เงินเข้า 00.00 รอ 30 นาทีหลัง 00.00 นะคะ'));
@@ -1340,7 +1341,7 @@ app.post('/telegram', async function(req, res) {
     }
     if (text === '/status') {
       await tgMain(
-        '\u{1F916} <b>น้องมายด์ Status</b>\n\n' +
+        '\u{1F916} <b>น้องนีน่า Status</b>\n\n' +
         '\u2705 Bot: Online\n' +
         '\u{1F9E0} AI: Claude claude-sonnet-4-6\n' +
         '\u{1F4E6} Repo: ' + GITHUB_REPO + '\n\n' +
@@ -1367,11 +1368,11 @@ app.post('/webhook', async function(req, res) {
 });
 
 app.get('/', function(req, res) {
-  res.send('น้องมายด์ Admin Bot | Royal One | v3.1');
+  res.send('น้องนีน่า Admin Bot |"น้องนีน่า Admin Bot | UFA PRO99 | v1.0"| v3.1');
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, function() {
   console.log('Server running on port ' + PORT);
-  console.log('AI: Claude claude-sonnet-4-6 | v3.1');
+  console.log('AI: Claude claude-sonnet-4-6 | UFA PRO99 | v1.0');
 });
