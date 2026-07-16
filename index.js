@@ -23,7 +23,6 @@ const THIRTY_MIN = 30 * 60;
 const TWO_HOURS_MS = 2 * 60 * 60 * 1000;
 
 // ==================== WITHDRAW SCHEDULE ====================
-// ปิดถอนทุกวัน เวลา 02:00 - 07:00 (เวลาไทย UTC+7) — ฝากได้ตามปกติ
 const DAILY_WITHDRAW_CLOSE_START = '23:30';
 const DAILY_WITHDRAW_CLOSE_END   = '00:30';
 
@@ -32,7 +31,6 @@ function isWithdrawClosed() {
   var thaiTime = new Date(now.getTime() + 7 * 60 * 60 * 1000);
   var hhmm = thaiTime.toISOString().substring(11, 16);
   var dateStr = thaiTime.toISOString().substring(0, 10);
-  // ช่วง 23:30-00:30 ข้ามเที่ยงคืน
   var closed = (hhmm >= '23:30') || (hhmm < '00:30');
   if (closed) {
     return { closed: true, reason: 'ธนาคารอัปเดตระบบ', until: dateStr + ' 00:30' };
@@ -44,7 +42,6 @@ function formatWithdrawClosedMsg(until, msgText) {
   var timePart = until.split(' ')[1].replace(':', '.') + ' น.';
   var m = (msgText || '').toLowerCase();
 
-  // ตอบตาม context ที่ลูกค้าถาม
   if (m.includes('จะได้') || m.includes('ได้เลย') || m.includes('ตอน') || m.includes('กี่โมง') || m.includes('เมื่อไ')) {
     return 'ได้เลยค่ะ ตอน ' + timePart + ' เปิดปกติเลยนะคะ 😊\n' +
       'เงินไม่หายไปไหนแน่นอนค่ะ รอแป๊บนึงนะคะ 🙏';
@@ -63,7 +60,6 @@ function formatWithdrawClosedMsg(until, msgText) {
       'รอถึง ' + timePart + ' ก็ถอนได้เลยค่ะ ฝากได้ตามปกตินะคะ 💰';
   }
 
-  // default — ถ้าไม่ match case ไหน
   var defaults = [
     'ขอโทษนะคะ ตอนนี้ธนาคารปิดปรับปรุงระบบอยู่ค่ะ\nรอถึง ' + timePart + ' ได้เลยนะคะ เงินปลอดภัย 100% ค่ะ 💰🙏',
     'ตอนนี้ระบบถอนหยุดชั่วคราวจากธนาคารค่ะ\nหลัง ' + timePart + ' ถอนได้ปกติเลยนะคะ มั่นใจได้เลยค่ะ 🙏',
@@ -189,6 +185,17 @@ function isCantAttach(text) {
   return CANT_ATTACH_WORDS.some(function(w) { return text.includes(w); });
 }
 
+// ==================== KYC / อนุมัติบัญชี / ยืนยันตัวตน ====================
+const KYC_WORDS = [
+  'อนุมัติบัญชี','ยืนยันตัวตน','ยืนยันบัญชี','ยืนยันตัว',
+  'ยืนยันข้อมูล','อนุมัติ','verify','verification','kyc',
+  'บัญชียังไม่','บัญชีไม่ผ่าน','บัญชีไม่อนุมัติ','บัญชีไม่ได้',
+  'ผ่านการยืนยัน','ยืนยันก่อน','ต้องยืนยัน',
+];
+function isKyc(text) {
+  return KYC_WORDS.some(function(w) { return text.toLowerCase().includes(w); });
+}
+
 function normalizePhone(str) {
   return str.replace(/[-\s()]/g, '');
 }
@@ -197,7 +204,6 @@ function isPhone(str) {
   if (c.startsWith('00')) c = c.substring(1);
   return /^0[5-9]\d{8}$/.test(c);
 }
-// เบอร์ที่พิมพ์ไม่ครบ เช่น 065574 — รับถ้าขึ้นต้น 06/08/09 + ตัวเลขอีก 4+ ตัว
 function isPhonePartial(str) {
   var c = normalizePhone(str);
   return /^0[5-9]\d{4,}$/.test(c);
@@ -337,7 +343,6 @@ async function tgAlert(displayName, msg, ts, userId) {
 async function tgReset(displayName, info) {
   var text = '\u{1F511} <b>ขอรีรหัส</b>\n\u{1F464} ชื่อไลน์: ' + displayName +
     '\n\u{1F4CB} ข้อมูล:\n' + info + '\n\n\u23F0 รีรหัสให้ภายใน 3 นาทีครับ';
-  // ส่งไปกลุ่มแจ้งปัญหาเท่านั้น
   try {
     await fetch('https://api.telegram.org/bot' + TELEGRAM_BOT_TOKEN + '/sendMessage', {
       method: 'POST',
@@ -350,7 +355,6 @@ async function tgReset(displayName, info) {
 async function tgSlipAlert(displayName, info) {
   var text = '\u{1F4B8} <b>ฝากไม่เข้า</b>\n\u{1F464} ชื่อไลน์: ' + displayName +
     '\n\u{1F4CB} ข้อมูล: ' + info + '\n\n\u23F0 ตรวจสอบให้ลูกค้าด้วยครับ';
-  // ส่งไปกลุ่มแจ้งปัญหาเท่านั้น
   try {
     await fetch('https://api.telegram.org/bot' + TELEGRAM_BOT_TOKEN + '/sendMessage', {
       method: 'POST',
@@ -358,6 +362,22 @@ async function tgSlipAlert(displayName, info) {
       body: JSON.stringify({ chat_id: RESET_GROUP_1, text, parse_mode: 'HTML' }),
     });
   } catch (e) {}
+}
+
+// ==================== KYC TELEGRAM ALERT ====================
+
+async function tgKycAlert(displayName, info) {
+  var text = '\u{1F4CB} <b>ขออนุมัติบัญชี/ยืนยันตัวตน</b>\n' +
+    '\u{1F464} ชื่อไลน์: ' + displayName + '\n' +
+    '\u{1F4CB} ข้อมูล:\n' + info + '\n\n' +
+    '\u23F0 กรุณาดำเนินการให้ลูกค้าด้วยครับ';
+  try {
+    await fetch('https://api.telegram.org/bot' + TELEGRAM_BOT_TOKEN + '/sendMessage', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: RESET_GROUP_1, text, parse_mode: 'HTML' }),
+    });
+  } catch (e) { console.log('tgKycAlert error:', e.message); }
 }
 
 // ==================== REDIS HELPERS ====================
@@ -445,15 +465,28 @@ async function imgDup(userId) {
   return false;
 }
 
-// mark ว่าส่ง TG ไปจัดการแล้ว (10 นาที) — ไม่ขอข้อมูลซ้ำ
 async function markHandled(userId) { await redis.set('handled:' + userId, Date.now(), 'EX', 600); }
 async function isHandled(userId) { return !!(await redis.get('handled:' + userId)); }
 async function clearHandled(userId) { await redis.del('handled:' + userId); }
 
-// cashback state — รอยอดเสียจากลูกค้า
 async function setCashbackState(userId) { await redis.set('cashback:' + userId, '1', 'EX', 300); }
 async function isCashbackState(userId) { return !!(await redis.get('cashback:' + userId)); }
 async function clearCashbackState(userId) { await redis.del('cashback:' + userId); }
+
+// ==================== KYC REDIS HELPERS ====================
+
+async function getKycInfo(userId) {
+  var v = await redis.get('kyc:' + userId);
+  return v ? JSON.parse(v) : null;
+}
+async function setKycInfo(userId, info) {
+  await redis.set('kyc:' + userId, JSON.stringify(info), 'EX', 600);
+}
+async function clearKycInfo(userId) { await redis.del('kyc:' + userId); }
+async function isWaitingKyc(userId) { return !!(await redis.get('kyc:' + userId)); }
+async function startWaitingKyc(userId) {
+  await setKycInfo(userId, { name: null, phone: null, bank: null });
+}
 
 // ==================== LINE IMAGE ====================
 
@@ -528,9 +561,85 @@ async function aiChat(userMsg, history) {
     'แต้มสะสม/Loyalty = แลกได้ที่ร้านค้าหน้าเว็บ',
     'โค้ด/คูปอง = กดโลโก้กลางด้านล่างเว็บ → ใช้คูปอง (เปิดปกติ)',
     'ของแจก/เครดิตฟรี/โปร = ติดต่อ LINE @454npgay (แยกจากแต้ม)',
-    'แนะนำเพื่อน = คำนวนจากยอดฝากเพื่อน 7% รับทุกวันศุกร์ (เพื่อนต้องมีรายการเล่น) เงินเข้าออโต้ 00.00-00.30 น.',
-    'ลิงก์แนะนำเพื่อน = อยู่ในหน้า "แนะนำเพื่อน" ในเว็บ คัดลอกลิงก์ส่งให้เพื่อนสมัครได้เลย',
+    'แนะนำเพื่อน = คำนวนจากยอดฝากเพื่อน (ฝากแบบไม่รับโบนัสเท่านั้น) กดรับทุกวันศุกร์ ถอนขั้นต่ำ 1 บาท ทำยอด 10 เท่า ถอนได้ 1 เท่า เล่นสล็อตได้ทุกค่าย ห้ามซื้อฟรีสปิน ไปที่เมนูอื่นๆ-แนะนำเพื่อน',
+    'ลิงก์แนะนำเพื่อน = อยู่ในหน้า "แนะนำเพื่อน" ในเว็บ คัดลอกลิงก์ส่งให้เพื่อนกดสมัครได้เลย',
     'ไม่มีมีกลุ่ม TG: https://t.me/+4Kdjj4YtrFY5NmRl | ซอลญ่า คือ LINE @757xinte',
+    '',
+    '## โปรโมชั่นทั้งหมด (ตอบเต็มๆ ตามนี้เลย ห้ามสรุปย่อ)',
+    '',
+    '### ยอดเสีย/คืนยอดเสีย',
+    'สล็อตคืนยอดเสีย 10% ทำยอด 8 เท่า ถอนได้ 1 เท่า (เล่นได้แค่สล็อต ห้ามซื้อฟรีสปิน ผิดกฎงดถอน)',
+    'คาสิโน+ยิงปลา คืนยอดเสีย 5% ทำยอด 8 เท่า ถอนได้ 1 เท่า ต้องมียอดเดิมพันอย่างน้อย 5 ไม้ ห้าม ALL IN',
+    'กดรับยอดเสียได้ทุกวันหลังเวลา 23.30น. ไปที่เมนูอื่นๆ-รับยอดเสีย',
+    '',
+    '### คอมมิชชั่น',
+    'หมวดกีฬา รับค่าคอมมิชชั่น 1% ทำยอด 4 เท่า ถอนได้ 1 เท่า ไปที่เมนูอื่นๆ-คอมมิชชั่น',
+    '',
+    '### โปรเคลมบิล/สลิปแลกเครดิต',
+    'เติม 50 รับเพิ่ม 50 | เติม 100 รับเพิ่ม 100 | เติม 300 รับเพิ่ม 300 | เติม 500 รับเพิ่ม 500 | เติม 1,000 รับเพิ่ม 1,000',
+    'เล่นได้ เล่นเสียนำมาเคลมฟรี เคลมบิลได้ที่ https://shorturl.asia/718L9',
+    '',
+    '### โปรฝากประจำ/ฝากต่อเนื่อง',
+    'สะสมครบ 3 วันรับ 100 | สะสมครบ 7 วันรับ 500 | สะสมครบ 15 วันรับ 1,000 | สะสมครบ 30 วันรับ 2,000',
+    'ทำยอด 10 เท่า ถอนได้ 1 เท่า เล่นสล็อตได้ทุกค่าย ห้ามซื้อฟรีสปิน ฝากแบบไม่รับโปรโมชั่นเท่านั้น ต้องมียอดฝากขั้นต่ำ 300/วัน',
+    '',
+    '### รับแต้มเพชรฟรี/กงล้อ',
+    'เครดิตกงล้อใช้ 30 แต้ม หมุน 1 ครั้ง สะสมเครดิตได้สูงสุด 10,000 เครดิต ทำเทิร์น 10 เท่า ถอนได้ 1 เท่า เล่นได้แค่สล็อต ห้ามซื้อฟรีสปิน ไปที่เมนูอื่นๆ-รับแต้มเพชรฟรี',
+    '',
+    '### โปรวันเกิด',
+    'รับเครดิตฟรี 300 บาท เป็นสมาชิกอย่างน้อย 15 วัน ภายใน 7 วันก่อนรับโปรต้องมียอดฝากและเล่น 300 บาทขึ้นไป ถ่ายรูปบัตรประชาชนชื่อตรงกับข้อมูลสมัคร แจ้งยูสเซอร์ส่งหลักฐานให้แอดมิน ทำเทิร์น 4 เท่าถอนได้เลย ไม่จำกัดถอน จำกัด 1 สิทธิ์ 1 ยูส/ปี',
+    '',
+    '### เช็คอิน',
+    'ฝากบิล 100 รับฟรี 50 ทำยอด 10 เท่า ถอนได้ 50 บาท กด "ฝากเงินเพื่อรับรางวัล" ก่อนทำรายการฝาก เล่นได้แค่สล็อต ห้ามซื้อฟรีสปิน ไปที่เมนูอื่นๆ-เช็คอิน',
+    '',
+    '### แรงค์กิ้ง (Ranking)',
+    'BRONZE-I เริ่มต้น-ยอดฝาก 5,000',
+    'GOLD-I ยอดฝากสะสม 5,000 รับ 500 เครดิต ทำเทิร์น 10 เท่า ถอนได้ 1 เท่า',
+    'PLATINUM-I ยอดฝากสะสม 10,000 รับ 1,000 เครดิต ทำเทิร์น 10 เท่า ถอนได้ 1 เท่า',
+    'DIAMOND-I ยอดฝากสะสม 50,000 รับ 2,500 เครดิต ทำเทิร์น 12 เท่า ถอนได้ 1 เท่า',
+    'COMMANDER-I ยอดฝากสะสม 100,000 รับ 10,000 เครดิต ทำเทิร์น 10 เท่า ถอนได้ 1 เท่า',
+    'สะสมได้ตลอดชีพ ไม่มีตัดสิทธิ์ เล่นได้แค่สล็อต ห้ามซื้อฟรีสปิน ไปที่เมนูอื่นๆ-อันดับ',
+    '',
+    '### ทายผลเลขท้าย',
+    'ยอดฝากบิลเดี่ยวขั้นต่ำ 50 บาท = 1 สิทธิ์ ทายได้ไม่จำกัด ปิดทายผล 15.20น. วันหวยออก ทายเลขท้าย 2 ตัวล่าง หรือ 3 ตัวบน ประกาศผลกลุ่มเทเลแกรม 19.00น. ถูกรับเครดิตฟรี 200 บาท ทำยอด 8 เท่า ถอนได้ 2 เท่า',
+    '',
+    '### ร้านค้าแลกเหรียญ',
+    'แต้ม 39,999 แลก iPhone 17 Pro Max 1TB | แต้ม 25,000 แลก Honda Giorno+ 2026 | แต้ม 150,000 แลกทองคำรูปพรรณ 1 บาท ไปที่เมนูอื่นๆ-ร้านค้าแลกเหรียญ',
+    '',
+    '### สะสมแต้มเพชร',
+    'ยอดฝากบิลเดี่ยว 300 บาท รับ 30 แต้มเพชร ใช้หมุนกงล้อหรือแลกซื้อเครดิตที่ร้านค้า ไปที่เมนูอื่นๆ-กงล้อ-ร้านค้าแลกเหรียญ',
+    '',
+    '### กล่องสุ่ม',
+    'ยอดฝากบิลเดี่ยว 300 บาทภายในวัน เปิดกล่องสุ่มได้ 1 ครั้ง ลุ้นรับสูงสุด 5,000 บาท ฝากทุกวันลุ้นได้ทุกวัน',
+    'รางวัลที่ 1 CREDIT-FREE 20 ทำยอด 5 เท่า ถอนได้ 2 เท่า',
+    'รางวัลที่ 2 CREDIT-FREE 50 ทำยอด 2 เท่า ถอนได้ 4 เท่า',
+    'รางวัลที่ 3 CREDIT-FREE 100 ทำยอด 2 เท่า ถอนได้ 4 เท่า',
+    'รางวัลที่ 4 CREDIT-FREE 1,000 ทำยอด 1 เท่า ถอนได้ 1 เท่า',
+    'รางวัลที่ 5 เงินสด 3,000 ไม่ต้องทำยอด ถอนได้ทันที',
+    'รางวัลที่ 6 เงินสด 5,000 ไม่ต้องทำยอด ถอนได้ทันที',
+    'ต้องกดรับก่อนฝากเท่านั้น ไปที่เมนูอื่นๆ-กล่องสุ่ม',
+    '',
+    '### โปรสมาชิกใหม่',
+    'รับฟรี 20% ฝากเริ่มต้น 50 สูงสุด 3,000 บาท ทำยอด 10 เท่า ถอนได้ 4 เท่า เล่นสล็อตได้ทุกค่าย ห้ามซื้อฟรีสปิน รับได้เฉพาะสมาชิกใหม่ 1 ครั้งเท่านั้น',
+    '',
+    '### โปรนาทีทอง',
+    'รับเพิ่ม 10% เฉพาะเวลา 16.00-18.00น. ฝากเริ่มต้น 50 สูงสุด 3,000 บาท ไม่ต้องทำยอด ถอนได้สูงสุด 4 เท่า เล่นสล็อตได้ทุกค่าย ห้ามซื้อฟรีสปิน รับได้ 1 ครั้ง/วัน',
+    '',
+    '### Bonustime',
+    'รับเพิ่ม 15% เฉพาะเวลา 20.00-22.00น. ฝากเริ่มต้น 50 สูงสุด 3,000 บาท ไม่ต้องทำยอด ถอนได้สูงสุด 3 เท่า เล่นสล็อตได้ทุกค่าย ห้ามซื้อฟรีสปิน รับได้ 1 ครั้ง/วัน',
+    '',
+    '### โปรทุนน้อย',
+    'ฝาก 30 รับ 100 ทำยอด 10 เท่า ถอนได้ 1 เท่า เล่นสล็อตได้ทุกค่าย ห้ามซื้อฟรีสปิน รับได้ไม่จำกัดครั้ง/วัน',
+    '',
+    '### โปรถอนหนัก',
+    'ฝาก 50 รับ 200 ทำยอด 10 เท่า ถอนได้ 1 เท่า เล่นสล็อตได้ทุกค่าย ห้ามซื้อฟรีสปิน รับได้ไม่จำกัดครั้ง/วัน',
+    '',
+    '### โปรไทยช่วยไทยพลัส 60/40',
+    'ฝาก 40 เราช่วยจ่าย 60 รับ 100 บาท | ฝาก 400 เราช่วยจ่าย 600 รับ 1,000 บาท ทำยอด 6 เท่า ถอนได้ 2 เท่าของยอดรับโบนัส เล่นสล็อตได้ทุกค่าย ห้ามซื้อฟรีสปิน รับได้ 1 ครั้ง/วัน',
+    '',
+    '## กฎการตอบเรื่องโปร',
+    'ถ้าลูกค้าถามโปรไหน → ส่งข้อมูลโปรนั้นเต็มๆ ตามที่มีข้างบน ห้ามสรุปย่อ',
+    'ถ้าลูกค้าถามว่ามีโปรอะไรบ้าง → บอกชื่อโปรทั้งหมดก่อน แล้วถามว่าสนใจโปรไหน',
     '',
     '## สไตล์',
     'ตอบสั้น 1-2 บรรทัด เหมือนแอดมินคนจริง',
@@ -568,7 +677,6 @@ async function aiChat(userMsg, history) {
     'คิดในใจ แล้วพิมพ์ออกมาแค่คำตอบสุดท้ายที่ลูกค้าจะเห็น\n' +
     'ห้ามแปลงเวลาเป็น "ทุ่ม" หรือ "ตี" ให้ใช้ตัวเลข 24 ชั่วโมงเท่านั้น เช่น 23.00 น. และ 00.00 น.\n';
 
-  // เพิ่ม context ถ้าอยู่ในช่วงปิดถอน
   var wdStatus = isWithdrawClosed();
   if (wdStatus.closed) {
     systemPrompt += '\n\n## ⚠️ สถานการณ์ปัจจุบัน (สำคัญมาก)\n' +
@@ -718,10 +826,8 @@ async function handleEvent(event) {
         var curState = await getSlipState(userId);
 
         if (curState && (curState.step === 'waiting_info' || curState.step === 'waiting_confirm')) {
-          // ลูกค้าแนบไม่ได้ เลยส่งสลิปมาในแชทแทน → ขอเบอร์แล้วส่ง TG
           var alreadyAskedSlip = await redis.get('asked_info:' + userId);
           if (alreadyAskedSlip || await isHandled(userId)) {
-            // ขอไปแล้ว หรือส่ง TG แล้ว → รับสลิปแล้วแจ้ง TG
             await clearSlipState(userId);
             await tgSlipAlert(displayName, 'ลูกค้าส่งสลิปมาในแชท (แนบที่เว็บไม่ได้)');
             await markHandled(userId);
@@ -729,7 +835,6 @@ async function handleEvent(event) {
             await lineReply(replyToken, txt(slipInChatMsg));
             await addHistory(userId, 'bot', slipInChatMsg);
           } else {
-            // ยังไม่ได้ขอเบอร์ → ขอเบอร์พร้อมรับสลิปในแชท
             await redis.set('asked_info:' + userId, '1', 'EX', 3600);
             await setSlipState(userId, { step: 'waiting_info', ts: Date.now() });
             var needPhoneMsg = 'รับสลิปแล้วค่ะ \u{1F4CB}\nขอเบอร์โทรหรือเลขบัญชีธนาคารด้วยนะคะ น้องแนบให้เองเลยค่ะ \u{1F495}';
@@ -737,7 +842,6 @@ async function handleEvent(event) {
             await addHistory(userId, 'bot', needPhoneMsg);
           }
         } else {
-          // ปกติ → บอกแนบที่เว็บ
           var slipMsg = 'เอาสลิปนี้ไปแนบที่หน้าเว็บด้วยนะคะ \u{1F4F1}\nเงินจะเข้าอัตโนมัติภายใน 1-3 นาทีค่ะ';
           await lineReply(replyToken, txt(slipMsg));
           await setSlipState(userId, { step: 'waiting_confirm', ts: Date.now() });
@@ -870,11 +974,53 @@ async function handleEvent(event) {
     }
   }
 
+  // ====== STATE: รอข้อมูล KYC ======
+  if (await isWaitingKyc(userId)) {
+    if (isDone(msgText)) {
+      await clearKycInfo(userId);
+      await lineReply(replyToken, txt('หากคุณพี่ติดปัญหาด้านใดติดต่อแอดมิน 𝟐𝟒 ชม.นะคะ🥰'));
+      return;
+    }
+
+    var kycInfo = await getKycInfo(userId);
+    var kycEx = extractContact(msgText);
+    if (kycEx.phone && !kycInfo.phone) kycInfo.phone = kycEx.phone;
+    if (kycEx.bank  && !kycInfo.bank)  kycInfo.bank  = kycEx.bank;
+    if (kycEx.name  && !kycInfo.name)  kycInfo.name  = kycEx.name;
+
+    if (kycInfo.phone && kycInfo.bank) {
+      var kycSummary = [
+        kycInfo.name  ? 'ชื่อ: ' + kycInfo.name : null,
+        'เบอร์: '    + kycInfo.phone,
+        'บัญชี: '    + kycInfo.bank,
+      ].filter(Boolean).join('\n');
+      await clearKycInfo(userId);
+      await tgKycAlert(displayName, kycSummary);
+      var kycDoneMsg = 'แอดมินกำลังดำเนินการ รบกวนรอสักครู่นะคะ\u23F0';
+      await lineReply(replyToken, txt(kycDoneMsg));
+      await addHistory(userId, 'bot', kycDoneMsg);
+
+    } else if (kycInfo.phone && !kycInfo.bank) {
+      await setKycInfo(userId, kycInfo);
+      var kycAskBank = 'ขอเลขบัญชีธนาคารด้วยนะคะ \u{1F4CB}';
+      await lineReply(replyToken, txt(kycAskBank));
+      await addHistory(userId, 'bot', kycAskBank);
+
+    } else {
+      await setKycInfo(userId, kycInfo);
+      var kycMissing = [];
+      if (!kycInfo.name)  kycMissing.push('ชื่อ-นามสกุล');
+      if (!kycInfo.phone) kycMissing.push('เบอร์โทร');
+      if (!kycInfo.bank)  kycMissing.push('เลขบัญชีธนาคาร');
+      await lineReply(replyToken, txt('ขอข้อมูลเพิ่มเติมด้วยนะคะ 🙏\n' + kycMissing.join(', ') + ' ค่ะ'));
+    }
+    return;
+  }
+
   // ====== STATE: รอ slip ======
   var slipState = await getSlipState(userId);
 
   if (slipState && slipState.step === 'waiting_confirm') {
-    // ลูกค้าบอกว่าจบแล้ว / เข้าแล้ว
     if (isDone(msgText)) {
       await clearSlipState(userId);
       await clearSlipSent(userId);
@@ -882,12 +1028,10 @@ async function handleEvent(event) {
       return;
     }
 
-    // ลูกค้ามีปัญหา / ตามยอด → ขอเบอร์หรือบัญชี (แค่ 1 ครั้ง/ชั่วโมง)
     var hasProblem = ['ไม่เข้า','ไม่ได้','แนบไม่','อัปโหลด','เลือกรูป','ยังไม่','ไม่มา',
       'ฝากเงิน','แจ้งฝาก','ฝากไม่','เงินไม่','ยอดไม่','ตามยอด','เช็คยอด',
       'เงินเข้าไหม','ยอดเข้าไหม'].some(function(w){ return msgText.toLowerCase().includes(w); });
 
-    // มีเบอร์/บัญชีส่งมาพร้อมกันเลย → ส่ง TG ได้เลย
     var exCon = extractContact(msgText);
     if (exCon.phone || exCon.bank) {
       await clearSlipState(userId);
@@ -905,7 +1049,6 @@ async function handleEvent(event) {
     }
 
     if (hasProblem || isSlipAlreadySent(msgText)) {
-      // ขอข้อมูลได้แค่ 1 ครั้ง/ชั่วโมง
       var alreadyAsked = await redis.get('asked_info:' + userId);
       if (!alreadyAsked) {
         await redis.set('asked_info:' + userId, '1', 'EX', 3600);
@@ -914,18 +1057,15 @@ async function handleEvent(event) {
         await lineReply(replyToken, txt(askMsg));
         await addHistory(userId, 'bot', askMsg);
       } else {
-        // ขอไปแล้ว → บอกว่ากำลังดำเนินการอยู่
         await lineReply(replyToken, txt('น้องนีน่ากำลังดำเนินการให้อยู่นะคะ รอสักครู่ค่ะ \u23F0'));
       }
       return;
     }
 
-    // ไม่ match → AI ตอบ
     await clearSlipState(userId);
   }
 
   if (slipState && slipState.step === 'waiting_info') {
-    // จบแล้ว
     if (isDone(msgText)) {
       await clearSlipState(userId);
       await clearSlipSent(userId);
@@ -935,7 +1075,6 @@ async function handleEvent(event) {
       return;
     }
 
-    // ลูกค้าส่งเบอร์/บัญชีมา → ส่ง TG แจ้งแอดมิน
     var exInfo = extractContact(msgText);
     if (exInfo.phone || exInfo.bank) {
       await clearSlipState(userId);
@@ -952,12 +1091,10 @@ async function handleEvent(event) {
       return;
     }
 
-    // ลูกค้ายังบอกว่าไม่เข้าทั้งที่ TG แจ้งไปแล้ว → ย้ำ TG 2 ข้อความ
     var stillProblem = ['ยังไม่เข้า','ไม่เข้าเลย','ยังไม่ได้','ยังไม่มา','ยังไม่เห็น',
       'ไม่เข้านะ','ไม่เข้าครับ','ไม่เข้าค่ะ','ยืนยัน'].some(function(w){ return msgText.includes(w); });
 
     if (stillProblem && await isHandled(userId)) {
-      // ย้ำ TG 2 ข้อความ
       var urgentText = '\u{1F6A8}\u{1F6A8} ลูกค้ายืนยันว่ายังไม่เข้า!\nชื่อไลน์: ' + displayName + '\nข้อความ: ' + msgText + '\n\n⚡ ช่วยตรวจสอบด่วนด้วยครับ';
       await tgMain(urgentText, stopResumeMarkup(userId));
       await tgMain(urgentText, stopResumeMarkup(userId));
@@ -965,13 +1102,11 @@ async function handleEvent(event) {
       return;
     }
 
-    // ถ้าขอไปแล้วแต่ยังไม่ได้เบอร์ → บอกรอ ไม่ขอซ้ำ
     if (await isHandled(userId)) {
       await lineReply(replyToken, txt('น้องนีน่ากำลังดำเนินการให้อยู่นะคะ รอสักครู่ค่ะ \u23F0'));
       return;
     }
 
-    // ยังไม่ได้เบอร์เลย → ขอซ้ำแค่ครั้งนี้
     await lineReply(replyToken, txt('ขอเบอร์โทรหรือเลขบัญชีธนาคารด้วยนะคะ \u{1F4CB}'));
     return;
   }
@@ -1012,7 +1147,7 @@ async function handleEvent(event) {
     return;
   }
 
-  // ====== แคชแบ็ก — ถามยอดเสียแล้วคำนวนให้ (ต้องเช็คก่อน AI เสมอ) ======
+  // ====== แคชแบ็ก ======
   var cashbackWords = [
     'แคชแบ็ก','cashback','ยอดเสีย','คืนยอด','รับยอดเสีย','ได้ยอดเสีย',
     'โบนัสเสีย','เสียได้คืน','รับยอดเสียยังไง','รับยอดเสียได้ไหม',
@@ -1022,25 +1157,21 @@ async function handleEvent(event) {
   var isCashbackQ = cashbackWords.some(function(w) { return msgText.toLowerCase().includes(w); });
 
   if (isCashbackQ) {
-    // ถ้าลูกค้าบอกยอดเสียมาพร้อมกับถามว่าตัวเองได้เท่าไหร่ → คำนวนได้เลย
     var lossNumDirect = msgText.replace(/,/g, '').match(/\d+(\.\d+)?/);
     var isAskingHowMuch = ['จะได้เท่าไหร่','ได้เท่าไหร่','ได้เท่าไร','ได้กี่บาท','จะได้กี่','คำนวน','คิดให้','คิดให้หน่อย'].some(function(w){ return msgText.includes(w); });
 
     if (lossNumDirect && isAskingHowMuch) {
-      // มีตัวเลข + ถามว่าได้เท่าไหร่ → คำนวนทันที
       var lossDirect = parseFloat(lossNumDirect[0]);
       var cashbackDirect = Math.floor(lossDirect * 0.10);
       var cbDirectMsg = 'ยอดเสีย ' + lossDirect.toLocaleString() + ' บาท ได้แคชแบ็กคืน ' + cashbackDirect.toLocaleString() + ' บาทค่ะ \u{1F4B0}\nเงินเข้าอัตโนมัติหลัง 00.00 น. รอประมาณ 30 นาทีนะคะ \u{1F495}';
       await lineReply(replyToken, txt(cbDirectMsg));
       await addHistory(userId, 'bot', cbDirectMsg);
     } else if (isAskingHowMuch && !lossNumDirect) {
-      // ถามว่าได้เท่าไหร่แต่ไม่มีตัวเลข → อธิบายก่อนแล้วถามยอด
       await setCashbackState(userId);
       var explainMsg = 'แคชแบ็กยอดเสีย 5% ทุกวันค่ะ \u{1F4B0}\nตัวอย่าง เสีย 1,000 บาท ได้คืน 50 บาทค่ะ\n\nตัดยอด 23.00 น. เงินเข้าหลัง 00.00 น. รอประมาณ 30 นาทีนะคะ\n\nวันนี้เสียไปเท่าไหร่คะ? น้องคำนวนให้เลยค่ะ \u{1F495}';
       await lineReply(replyToken, txt(explainMsg));
       await addHistory(userId, 'bot', explainMsg);
     } else {
-      // ถามทั่วไป เช่น "รับยอดเสียยังไง" / "มีแคชแบ็กไหม" → อธิบายแล้วถามว่าอยากคำนวนไหม
       var infoMsg = 'มีแคชแบ็กยอดเสีย 5% ทุกวันค่ะ \u{1F4B0}\nตัวอย่าง เสีย 1,000 บาท ได้คืน 50 บาทค่ะ\n\nตัดยอด 23.00 น. เงินเข้าหลัง 00.00 น. รอประมาณ 30 นาทีนะคะ \u{1F495}';
       await lineReply(replyToken, txt(infoMsg));
       await addHistory(userId, 'bot', infoMsg);
@@ -1099,25 +1230,31 @@ async function handleEvent(event) {
     return;
   }
 
-  // ====== pre-check: "ไม่เข้า" แบบสั้นๆ ไม่มี context ถอน → ขอสลิปเลย ======
+  // ====== อนุมัติบัญชี / ยืนยันตัวตน ======
+  if (isKyc(msgText)) {
+    await startWaitingKyc(userId);
+    var kycAskMsg = 'รับเรื่องแล้วค่ะ \u{1F4CB}\nขอข้อมูลด้านล่างนี้ด้วยนะคะ\n\n👤 ชื่อ-นามสกุล\n📱 เบอร์โทร\n🏦 เลขบัญชีธนาคาร';
+    await lineReply(replyToken, txt(kycAskMsg));
+    await addHistory(userId, 'bot', kycAskMsg);
+    return;
+  }
+
+  // ====== pre-check: "ไม่เข้า" แบบสั้นๆ ======
   var shortNotIn = ['ไม่เข้าล่ะ','ไม่เข้าเลย','ยังไม่เข้า','ไม่เข้าครับ','ไม่เข้าค่ะ','ไม่เข้านะ','เข้าไม่ได้'];
   var isShortNotIn = shortNotIn.some(function(w) { return msgText.includes(w); });
   var hasWithdrawCtx = msgText.includes('ถอน') || msgText.includes('withdraw');
 
   if (isShortNotIn && !hasWithdrawCtx) {
-    // ถ้าส่ง TG ไปแล้ว → บอทรับทราบ ไม่ขอซ้ำ
     if (await isHandled(userId)) {
       await lineReply(replyToken, txt('รับทราบแล้วนะคะ น้องนีน่ากำลังดำเนินการให้อยู่ค่ะ \u23F0'));
       return;
     }
     if (await hasSlipSent(userId)) {
-      // ส่งสลิปไปแล้ว → ขอเบอร์
       await setSlipState(userId, { step: 'waiting_info', ts: Date.now() });
       var niMsg = 'ขอเบอร์โทรหรือเลขบัญชีธนาคารด้วยนะคะ \u{1F4CB}';
       await lineReply(replyToken, txt(niMsg));
       await addHistory(userId, 'bot', niMsg);
     } else {
-      // ยังไม่ได้ส่งสลิป → ขอสลิป
       var askSlipMsg = 'ขอสลิปการโอนเงินมาด้วยนะคะ \u{1F4B8}';
       await lineReply(replyToken, txt(askSlipMsg));
       await setSlipState(userId, { step: 'waiting_confirm', ts: Date.now() });
@@ -1154,7 +1291,6 @@ async function handleEvent(event) {
   }
   if (aiReply.includes('##ASK_SLIP##')) {
     if (await hasSlipSent(userId)) {
-      // ส่งสลิปแล้วแต่แนบไม่ได้ → ขอเบอร์ทันที อย่าขอสลิปซ้ำ
       var alreadyAsk = await redis.get('asked_info:' + userId);
       if (!alreadyAsk) {
         await redis.set('asked_info:' + userId, '1', 'EX', 3600);
@@ -1362,7 +1498,7 @@ app.post('/webhook', async function(req, res) {
 });
 
 app.get('/', function(req, res) {
-  res.send('น้องนีน่า Admin Bot |"น้องนีน่า Admin Bot | UFA PRO99 | v1.0"| v3.1');
+  res.send('น้องนีน่า Admin Bot |"น้องนีน่า Admin Bot | UFA PRO99 | v1.0"| v3.2');
 });
 
 const PORT = process.env.PORT || 3000;
