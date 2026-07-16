@@ -1159,25 +1159,9 @@ async function handleEvent(event) {
   var isCashbackQ = cashbackWords.some(function(w) { return msgText.toLowerCase().includes(w); });
 
   if (isCashbackQ) {
-    var lossNumDirect = msgText.replace(/,/g, '').match(/\d+(\.\d+)?/);
-    var isAskingHowMuch = ['จะได้เท่าไหร่','ได้เท่าไหร่','ได้เท่าไร','ได้กี่บาท','จะได้กี่','คำนวน','คิดให้','คิดให้หน่อย'].some(function(w){ return msgText.includes(w); });
-
-    if (lossNumDirect && isAskingHowMuch) {
-      var lossDirect = parseFloat(lossNumDirect[0]);
-      var cashbackDirect = Math.floor(lossDirect * 0.10);
-      var cbDirectMsg = 'ยอดเสีย ' + lossDirect.toLocaleString() + ' บาท ได้แคชแบ็กคืน ' + cashbackDirect.toLocaleString() + ' บาทค่ะ \u{1F4B0}\nเงินเข้าอัตโนมัติหลัง 00.00 น. รอประมาณ 30 นาทีนะคะ \u{1F495}';
-      await lineReply(replyToken, txt(cbDirectMsg));
-      await addHistory(userId, 'bot', cbDirectMsg);
-    } else if (isAskingHowMuch && !lossNumDirect) {
-      await setCashbackState(userId);
-      var explainMsg = 'แคชแบ็กยอดเสีย 5% ทุกวันค่ะ \u{1F4B0}\nตัวอย่าง เสีย 1,000 บาท ได้คืน 50 บาทค่ะ\n\nตัดยอด 23.00 น. เงินเข้าหลัง 00.00 น. รอประมาณ 30 นาทีนะคะ\n\nวันนี้เสียไปเท่าไหร่คะ? น้องคำนวนให้เลยค่ะ \u{1F495}';
-      await lineReply(replyToken, txt(explainMsg));
-      await addHistory(userId, 'bot', explainMsg);
-    } else {
-      var infoMsg = 'มีแคชแบ็กยอดเสีย 5% ทุกวันค่ะ \u{1F4B0}\nตัวอย่าง เสีย 1,000 บาท ได้คืน 50 บาทค่ะ\n\nตัดยอด 23.00 น. เงินเข้าหลัง 00.00 น. รอประมาณ 30 นาทีนะคะ \u{1F495}';
-      await lineReply(replyToken, txt(infoMsg));
-      await addHistory(userId, 'bot', infoMsg);
-    }
+    var lossMsg = '📝เงื่อนไขคืนยอดเสียหน้าเว็บ📝\nสล็อตคืนยอดเสีย 𝟏𝟎%\n-ทำยอด 𝟖 เท่า ถอนได้ 𝟏 เท่า-\n(เล่นได้แค่สล็อต ห้ามซื้อฟรีสปิน ผิดกฎงดถอน)\n\nคาสิโน+ยิงปลา คืนยอดเสีย 𝟓%\n-ทำยอด 𝟖 เท่า ถอนได้ 𝟏 เท่า\n-ต้องมียอดเดิมพันอย่างน้อย 𝟓 ไม้ ห้าม 𝐀𝐋𝐋 𝐈𝐍\n\nกดรับยอดเสียได้ทุกวันหลังเวลา 𝟐𝟑.𝟑𝟎น.เป็นต้นไปนะคะ\n\nไปที่เมนูอื่นๆ-รับยอดเสีย';
+    await lineReply(replyToken, txt(lossMsg));
+    await addHistory(userId, 'bot', lossMsg.substring(0, 80));
     return;
   }
 
@@ -1278,10 +1262,9 @@ async function handleEvent(event) {
     return;
   }
   if (aiReply.includes('##CASHBACK##')) {
-    await setCashbackState(userId);
-    var askLossMsg = 'แคชแบ็กยอดเสีย 5% ทุกวันค่ะ \u{1F4B0}\nตัวอย่าง เสีย 1,000 บาท ได้คืน 50 บาทค่ะ\n\nวันนี้เสียไปเท่าไหร่คะ? น้องคำนวนให้เลยค่ะ \u{1F495}';
-    await lineReply(replyToken, txt(askLossMsg));
-    await addHistory(userId, 'bot', askLossMsg);
+    var aiLossMsg = '📝เงื่อนไขคืนยอดเสียหน้าเว็บ📝\nสล็อตคืนยอดเสีย 𝟏𝟎%\n-ทำยอด 𝟖 เท่า ถอนได้ 𝟏 เท่า-\n(เล่นได้แค่สล็อต ห้ามซื้อฟรีสปิน ผิดกฎงดถอน)\n\nคาสิโน+ยิงปลา คืนยอดเสีย 𝟓%\n-ทำยอด 𝟖 เท่า ถอนได้ 𝟏 เท่า\n-ต้องมียอดเดิมพันอย่างน้อย 𝟓 ไม้ ห้าม 𝐀𝐋𝐋 𝐈𝐍\n\nกดรับยอดเสียได้ทุกวันหลังเวลา 𝟐𝟑.𝟑𝟎น.เป็นต้นไปนะคะ\n\nไปที่เมนูอื่นๆ-รับยอดเสีย';
+    await lineReply(replyToken, txt(aiLossMsg));
+    await addHistory(userId, 'bot', aiLossMsg.substring(0, 80));
     return;
   }
   if (aiReply.includes('##RESET##')) {
@@ -1361,7 +1344,7 @@ async function handleEvent(event) {
       await lineReply(replyToken, txt('เล่น 50% ของยอดฝากก่อนถอนนะคะ\nเช่น ฝาก 100 ต้องเล่น 50 แล้วถอนได้เลยค่ะ'));
 
     } else if (m.includes('แคชแบ็ก') || m.includes('cashback') || m.includes('ยอดเสีย') || m.includes('คืนยอด') || m.includes('โบนัสเสีย')) {
-      await lineReply(replyToken, txt('มีแคชแบ็กยอดเสีย 5% ทุกวันค่ะ \u{1F4B0}\nตัวอย่าง เสีย 1,000 บาท ได้คืน 50 บาทค่ะ\nตัดยอด 23.00 เงินเข้า 00.00 รอ 30 นาทีหลัง 00.00 นะคะ'));
+      await lineReply(replyToken, txt('📝เงื่อนไขคืนยอดเสียหน้าเว็บ📝\nสล็อตคืนยอดเสีย 𝟏𝟎%\n-ทำยอด 𝟖 เท่า ถอนได้ 𝟏 เท่า-\n(เล่นได้แค่สล็อต ห้ามซื้อฟรีสปิน ผิดกฎงดถอน)\n\nคาสิโน+ยิงปลา คืนยอดเสีย 𝟓%\n-ทำยอด 𝟖 เท่า ถอนได้ 𝟏 เท่า\n-ต้องมียอดเดิมพันอย่างน้อย 𝟓 ไม้ ห้าม 𝐀𝐋𝐋 𝐈𝐍\n\nกดรับยอดเสียได้ทุกวันหลังเวลา 𝟐𝟑.𝟑𝟎น.เป็นต้นไปนะคะ\n\nไปที่เมนูอื่นๆ-รับยอดเสีย'));
 
     } else if (m.includes('รหัส') || m.includes('password') || m.includes('pass') || m.includes('เข้าไม่ได้') || m.includes('login') || m.includes('ล็อกอิน') || m.includes('เข้าระบบ')) {
       var r2 = 'ขอข้อมูลรีรหัสนะคะ \u{1F511}\n\nชื่อที่ใช้สมัคร\nเบอร์โทร\nเลขบัญชีธนาคาร';
