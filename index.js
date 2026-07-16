@@ -1249,6 +1249,31 @@ async function handleEvent(event) {
     return;
   }
 
+
+  // ====== เกมแตก/แนะนำเกม → สุ่มส่งรูป ======
+  var WIN_IMAGES = [
+    'https://raw.githubusercontent.com/xlisasakngam-sudo/line-bot-PoNee/main/images/messageImage_1784230430476_0.jpg',
+    'https://raw.githubusercontent.com/xlisasakngam-sudo/line-bot-PoNee/main/images/messageImage_1784230606391_0.jpg',
+    'https://raw.githubusercontent.com/xlisasakngam-sudo/line-bot-PoNee/main/images/messageImage_1784230866035_0.jpg',
+    'https://raw.githubusercontent.com/xlisasakngam-sudo/line-bot-PoNee/main/images/messageImage_1784231089259_0.jpg',
+    'https://raw.githubusercontent.com/xlisasakngam-sudo/line-bot-PoNee/main/images/messageImage_1784231240243_0.jpg',
+    'https://raw.githubusercontent.com/xlisasakngam-sudo/line-bot-PoNee/main/images/messageImage_1784231491384_0.jpg',
+    'https://raw.githubusercontent.com/xlisasakngam-sudo/line-bot-PoNee/main/images/messageImage_1784231589040_0.jpg',
+    'https://raw.githubusercontent.com/xlisasakngam-sudo/line-bot-PoNee/main/images/win1.jpg',
+    'https://raw.githubusercontent.com/xlisasakngam-sudo/line-bot-PoNee/main/images/win2.jpg'
+  ];
+  var winWords = ['เกมไหนแตก','เกมแตก','แตกง่าย','แตกดี','กำลังมา','เกมไหนดี','ค่ายไหนดี','แนะนำเกม','เล่นเกมไหน','เกมแนะนำ','ตอนนี้เกม','เกมกำลัง','สล็อตแตก','สล็อตดี','pg แตก','joker แตก','แนะนำสล็อต','สล็อตไหนดี','สล็อตไหนแตก'];
+  var isWinQ = winWords.some(function(w) { return msgText.toLowerCase().includes(w); });
+  if (isWinQ) {
+    var winUrl = WIN_IMAGES[Math.floor(Math.random() * WIN_IMAGES.length)];
+    await lineReply(replyToken, {
+      type: 'image',
+      originalContentUrl: winUrl,
+      previewImageUrl: winUrl,
+    });
+    return;
+  }
+
   // ====== AI ======
   var history = await getHistory(userId);
   await addHistory(userId, 'user', msgText);
