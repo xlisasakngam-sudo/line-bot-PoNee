@@ -1258,11 +1258,8 @@ async function handleEvent(event) {
     'https://raw.githubusercontent.com/xlisasakngam-sudo/line-bot-PoNee/main/images/messageImage_1784231089259_0.jpg',
     'https://raw.githubusercontent.com/xlisasakngam-sudo/line-bot-PoNee/main/images/messageImage_1784231240243_0.jpg',
     'https://raw.githubusercontent.com/xlisasakngam-sudo/line-bot-PoNee/main/images/messageImage_1784231491384_0.jpg',
-    'https://raw.githubusercontent.com/xlisasakngam-sudo/line-bot-PoNee/main/images/messageImage_1784231589040_0.jpg',
-    'https://raw.githubusercontent.com/xlisasakngam-sudo/line-bot-PoNee/main/images/win1.jpg',
-    'https://raw.githubusercontent.com/xlisasakngam-sudo/line-bot-PoNee/main/images/win2.jpg'
+    'https://raw.githubusercontent.com/xlisasakngam-sudo/line-bot-PoNee/main/images/messageImage_1784231589040_0.jpg'
   ];
-  var winWords = ['เกมไหนแตก','เกมแตก','แตกง่าย','แตกดี','กำลังมา','เกมไหนดี','ค่ายไหนดี','แนะนำเกม','เล่นเกมไหน','เกมแนะนำ','ตอนนี้เกม','เกมกำลัง','สล็อตแตก','สล็อตดี','pg แตก','joker แตก','แนะนำสล็อต','สล็อตไหนดี','สล็อตไหนแตก'];
   var isWinQ = winWords.some(function(w) { return msgText.toLowerCase().includes(w); });
   if (isWinQ) {
     var winUrl = WIN_IMAGES[Math.floor(Math.random() * WIN_IMAGES.length)];
