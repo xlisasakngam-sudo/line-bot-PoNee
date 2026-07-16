@@ -17,8 +17,8 @@ const GITHUB_REPO = process.env.GITHUB_REPO;
 // ==================== CONSTANTS ====================
 const REGISTER_URL = 'https://shorturl.asia/Uz5mH';
 const FREE_CREDIT_LINE = 'ติดต่อโปรโมชั่นได้เลยนะคะ 💕\nhttps://line.me/R/ti/p/@454npgay';
-const RESET_GROUP_1 = '-1003940320091';
-const RESET_GROUP_2 = '-1003957391663';
+const RESET_GROUP_1 = '-1003957391663'; // กลุ่มแจ้งปัญหา/รีรหัส
+const RESET_GROUP_2 = '-1003957391663'; // กลุ่มแจ้งปัญหา/รีรหัส (เหมือนกัน)
 const THIRTY_MIN = 30 * 60;
 const TWO_HOURS_MS = 2 * 60 * 60 * 1000;
 
@@ -337,33 +337,27 @@ async function tgAlert(displayName, msg, ts, userId) {
 async function tgReset(displayName, info) {
   var text = '\u{1F511} <b>ขอรีรหัส</b>\n\u{1F464} ชื่อไลน์: ' + displayName +
     '\n\u{1F4CB} ข้อมูล:\n' + info + '\n\n\u23F0 รีรหัสให้ภายใน 3 นาทีครับ';
-  for (var chatId of [RESET_GROUP_1, RESET_GROUP_2]) {
-    try {
-      var res = await fetch('https://api.telegram.org/bot' + TELEGRAM_BOT_TOKEN + '/sendMessage', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chat_id: chatId, text, parse_mode: 'HTML' }),
-      });
-      var data = await res.json();
-      if (data.ok) return;
-    } catch (e) {}
-  }
+  // ส่งไปกลุ่มแจ้งปัญหาเท่านั้น
+  try {
+    await fetch('https://api.telegram.org/bot' + TELEGRAM_BOT_TOKEN + '/sendMessage', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: RESET_GROUP_1, text, parse_mode: 'HTML' }),
+    });
+  } catch (e) {}
 }
 
 async function tgSlipAlert(displayName, info) {
   var text = '\u{1F4B8} <b>ฝากไม่เข้า</b>\n\u{1F464} ชื่อไลน์: ' + displayName +
     '\n\u{1F4CB} ข้อมูล: ' + info + '\n\n\u23F0 ตรวจสอบให้ลูกค้าด้วยครับ';
-  for (var chatId of [RESET_GROUP_1, RESET_GROUP_2]) {
-    try {
-      var res = await fetch('https://api.telegram.org/bot' + TELEGRAM_BOT_TOKEN + '/sendMessage', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chat_id: chatId, text, parse_mode: 'HTML' }),
-      });
-      var data = await res.json();
-      if (data.ok) return;
-    } catch (e) {}
-  }
+  // ส่งไปกลุ่มแจ้งปัญหาเท่านั้น
+  try {
+    await fetch('https://api.telegram.org/bot' + TELEGRAM_BOT_TOKEN + '/sendMessage', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: RESET_GROUP_1, text, parse_mode: 'HTML' }),
+    });
+  } catch (e) {}
 }
 
 // ==================== REDIS HELPERS ====================
