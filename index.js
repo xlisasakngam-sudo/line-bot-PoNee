@@ -531,7 +531,7 @@ async function aiChat(userMsg, history) {
     'แนบสลิปไม่ได้ = ส่งสลิปในแชท + เบอร์ แอดมินแนบให้',
     'โค้ด/คูปอง = กดโลโก้กลางด้านล่างเว็บ',
     'เกม = สล็อต (PG, Joker, PP, AMB และอีกกว่า 20 ค่าย), คาสิโนสด (Sexy Gaming, SA Gaming, Pretty Gaming, WM, Evolution, Allbet), กีฬา (SBOBET, RB7, SABA), ยิงปลา (JILI), หวย, ไฮโล, รูเล็ต',
-    'แต้มสะสม/Loyalty = ยังไม่เปิดให้แลกของรางวัล บอกลูกค้าว่าปิดบริการอยู่',
+    'แต้มสะสม/Loyalty = แลกได้ที่ร้านค้าหน้าเว็บ',
     'โค้ด/คูปอง = กดโลโก้กลางด้านล่างเว็บ → ใช้คูปอง (เปิดปกติ)',
     'ของแจก/เครดิตฟรี/โปร = ติดต่อ LINE @454npgay (แยกจากแต้ม)',
     'แนะนำเพื่อน = คำนวนจากยอดฝากเพื่อน 7% รับทุกวันศุกร์ (เพื่อนต้องมีรายการเล่น) เงินเข้าออโต้ 00.00-00.30 น.',
@@ -824,7 +824,7 @@ async function handleEvent(event) {
       await clearResetInfo(userId);
     } else if (isDone(msgText)) {
       await clearResetInfo(userId);
-      await lineReply(replyToken, txt('ได้ค่า \u{1F495}'));
+      await lineReply(replyToken, txt('หากคุณพี่ติดปัญหาด้านใดติดต่อแอดมิน 𝟐𝟒 ชม.นะคะ🥰'));
       return;
     } else if (isDeposit(msgText) || isWithdraw(msgText)) {
       await clearResetInfo(userId);
@@ -838,7 +838,7 @@ async function handleEvent(event) {
       var walletWords = ['ทรูมันนี่','truemoney','true money','ทูมันนี่','wallet','วอลเลท','วอลเล็ท','promptpay','พร้อมเพย์'];
       var hasWallet = walletWords.some(function(w) { return msgText.toLowerCase().includes(w); });
       if (hasWallet) {
-        var walletMsg = 'ขอโทษนะคะ รับเฉพาะบัญชีธนาคารเท่านั้นค่ะ\nขอเลขบัญชีธนาคารด้วยนะคะ \u{1F4CB}';
+        var walletMsg = 'รองรับทุกธนาคารค่ะ\nขอเลขบัญชีธนาคารด้วยนะคะ 📋';
         await lineReply(replyToken, txt(walletMsg));
         await addHistory(userId, 'bot', walletMsg);
         return;
@@ -853,7 +853,7 @@ async function handleEvent(event) {
         await clearResetInfo(userId);
         await tgReset(displayName, summary);
         await setResetCD(userId);
-        var doneReset = 'รับข้อมูลแล้วค่ะ \u{1F4CB}\nน้องนีน่ากำลังทำรายการให้นะคะ \u23F0';
+        var doneReset = '🙏แอดมินกำลังดำเนินการ รบกวนคุณพี่รอสักครู่นะคะ⏳';
         await lineReply(replyToken, txt(doneReset));
         await addHistory(userId, 'bot', doneReset);
 
@@ -884,7 +884,7 @@ async function handleEvent(event) {
     if (isDone(msgText)) {
       await clearSlipState(userId);
       await clearSlipSent(userId);
-      await lineReply(replyToken, txt(randomPick(['ได้ค่า \u{1F495}', 'ยินดีค่ะ \u{1F495}', 'เรียบร้อยค่ะ \u2728'])));
+      await lineReply(replyToken, txt('หากคุณพี่ติดปัญหาด้านใดติดต่อแอดมิน 𝟐𝟒 ชม.นะคะ🥰'));
       return;
     }
 
@@ -937,7 +937,7 @@ async function handleEvent(event) {
       await clearSlipSent(userId);
       await clearHandled(userId);
       await redis.del('asked_info:' + userId);
-      await lineReply(replyToken, txt('ได้ค่า \u{1F495}'));
+      await lineReply(replyToken, txt('หากคุณพี่ติดปัญหาด้านใดติดต่อแอดมิน 𝟐𝟒 ชม.นะคะ🥰'));
       return;
     }
 
@@ -1001,7 +1001,7 @@ async function handleEvent(event) {
     }
     if (isDone(msgText)) {
       await clearCashbackState(userId);
-      await lineReply(replyToken, txt('ได้ค่า \u{1F495}'));
+      await lineReply(replyToken, txt('หากคุณพี่ติดปัญหาด้านใดติดต่อแอดมิน 𝟐𝟒 ชม.นะคะ🥰'));
       return;
     }
     await lineReply(replyToken, txt('บอกยอดเสียมาได้เลยนะคะ น้องจะคำนวนให้ค่ะ \u{1F4B0}'));
@@ -1196,7 +1196,7 @@ async function handleEvent(event) {
     var m = msgText.toLowerCase().trim();
 
     if (m.includes('ทรูมันนี่') || m.includes('truemoney') || m.includes('ทูมันนี่') || m.includes('วอลเลท') || m.includes('wallet') || m.includes('พร้อมเพย์') || m.includes('promptpay')) {
-      await lineReply(replyToken, txt('รับเฉพาะบัญชีธนาคารเท่านั้นนะคะ \u{1F4CB}\nไม่รับ TrueMoney หรือ Wallet ค่ะ'));
+      await lineReply(replyToken, txt('รองรับทุกธนาคารค่ะ\nทรูมันนี่ วอลเลท ฝากขั้นต่ำ 10 บาทนะคะ 💳'));
 
     } else if (m.includes('ถอน')) {
       if (m.includes('ขั้นต่ำ') || m.includes('เท่าไหร่') || m.includes('เท่าไร') || m.includes('กี่บาท')) {
@@ -1244,7 +1244,7 @@ async function handleEvent(event) {
       await lineReply(replyToken, txt(FREE_CREDIT_LINE));
 
     } else if ((m.includes('แต้ม') && (m.includes('แลก') || m.includes('สะสม') || m.includes('ใช้'))) || m.includes('loyalty') || m.includes('แลกแต้ม')) {
-      await lineReply(replyToken, txt('ขณะนี้ยังไม่เปิดให้แลกของรางวัลนะคะ \u{1F64F}\nรอติดตามได้เลยค่ะ \u{1F495}'));
+      await lineReply(replyToken, txt('แลกได้ที่ร้านค้าหน้าเว็บเลยนะคะ 🎯รอติดตามได้เลยค่ะ \u{1F495}'));
 
     } else if (m.includes('สล็อต') || m.includes('slot') || m.includes('บาคาร่า') || m.includes('เกม') || m.includes('เล่นอะไร')) {
       await lineReply(replyToken, txt('มีสล็อตหลายค่ายเลยค่ะ บาคาร่า คาสิโนสด กีฬา ยิงปลา หวย มีอะไรให้ช่วยไหมคะ 😊'));
