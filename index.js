@@ -561,16 +561,23 @@ async function aiChat(userMsg, history) {
     'แต้มสะสม/Loyalty = แลกได้ที่ร้านค้าหน้าเว็บ',
     'โค้ด/คูปอง = กดโลโก้กลางด้านล่างเว็บ → ใช้คูปอง (เปิดปกติ)',
     'ของแจก/เครดิตฟรี/โปร = ติดต่อ LINE @454npgay (แยกจากแต้ม)',
-    'แนะนำเพื่อน = คำนวนจากยอดฝากเพื่อน (ฝากแบบไม่รับโบนัสเท่านั้น) กดรับทุกวันศุกร์ ถอนขั้นต่ำ 1 บาท ทำยอด 10 เท่า ถอนได้ 1 เท่า เล่นสล็อตได้ทุกค่าย ห้ามซื้อฟรีสปิน ไปที่เมนูอื่นๆ-แนะนำเพื่อน',
+    'แนะนำเพื่อน = คำนวณจากยอดฝากเพื่อน 0.7% (ฝากแบบไม่รับโบนัสเท่านั้น) กดรับทุกวันศุกร์หลัง 00.30น. ถอนขั้นต่ำ 1 บาท ทำยอด 10 เท่า ถอนได้ 1 เท่า เล่นสล็อตได้ทุกค่าย ห้ามซื้อฟรีสปิน ผิดกฎงดถอน ไปที่เมนูอื่นๆ-แนะนำเพื่อน',
     'ลิงก์แนะนำเพื่อน = อยู่ในหน้า "แนะนำเพื่อน" ในเว็บ คัดลอกลิงก์ส่งให้เพื่อนกดสมัครได้เลย',
     'ไม่มีมีกลุ่ม TG: https://t.me/+4Kdjj4YtrFY5NmRl | ซอลญ่า คือ LINE @757xinte',
     '',
     '## โปรโมชั่นทั้งหมด (ตอบเต็มๆ ตามนี้เลย ห้ามสรุปย่อ)',
     '',
     '### ยอดเสีย/คืนยอดเสีย',
-    'สล็อตคืนยอดเสีย 10% ทำยอด 8 เท่า ถอนได้ 1 เท่า (เล่นได้แค่สล็อต ห้ามซื้อฟรีสปิน ผิดกฎงดถอน)',
-    'คาสิโน+ยิงปลา คืนยอดเสีย 5% ทำยอด 8 เท่า ถอนได้ 1 เท่า ต้องมียอดเดิมพันอย่างน้อย 5 ไม้ ห้าม ALL IN',
-    'กดรับยอดเสียได้ทุกวันหลังเวลา 23.30น. ไปที่เมนูอื่นๆ-รับยอดเสีย',
+    'ถ้าลูกค้าถามยอดเสีย/แคชแบ็ก ส่งข้อความนี้เต็มๆ ทุกตัวอักษร:',
+    '📝เงื่อนไขคืนยอดเสียหน้าเว็บ📝',
+    'สล็อตคืนยอดเสีย 𝟏𝟎%',
+    '-ทำยอด 𝟖 เท่า ถอนได้ 𝟏 เท่า-',
+    '(เล่นได้แค่สล็อต ห้ามซื้อฟรีสปิน ผิดกฎงดถอน)',
+    'คาสิโน+ยิงปลา คืนยอดเสีย 𝟓%',
+    '-ทำยอด 𝟖 เท่า ถอนได้ 𝟏 เท่า',
+    '-ต้องมียอดเดิมพันอย่างน้อย 𝟓 ไม้ ห้าม 𝐀𝐋𝐋 𝐈𝐍',
+    'กดรับยอดเสียได้ทุกวันหลังเวลา 𝟐𝟑.𝟑𝟎น.เป็นต้นไปนะคะ',
+    'ไปที่เมนูอื่นๆ-รับยอดเสีย',
     '',
     '### คอมมิชชั่น',
     'หมวดกีฬา รับค่าคอมมิชชั่น 1% ทำยอด 4 เท่า ถอนได้ 1 เท่า ไปที่เมนูอื่นๆ-คอมมิชชั่น',
@@ -596,7 +603,7 @@ async function aiChat(userMsg, history) {
     'BRONZE-I เริ่มต้น-ยอดฝาก 5,000',
     'GOLD-I ยอดฝากสะสม 5,000 รับ 500 เครดิต ทำเทิร์น 10 เท่า ถอนได้ 1 เท่า',
     'PLATINUM-I ยอดฝากสะสม 10,000 รับ 1,000 เครดิต ทำเทิร์น 10 เท่า ถอนได้ 1 เท่า',
-    'DIAMOND-I ยอดฝากสะสม 50,000 รับ 2,500 เครดิต ทำเทิร์น 12 เท่า ถอนได้ 1 เท่า',
+    'DIAMOND-I ยอดฝากสะสม 50,000 รับ 2,500 เครดิต ทำเทิร์น 10 เท่า ถอนได้ 1 เท่า',
     'COMMANDER-I ยอดฝากสะสม 100,000 รับ 10,000 เครดิต ทำเทิร์น 10 เท่า ถอนได้ 1 เท่า',
     'สะสมได้ตลอดชีพ ไม่มีตัดสิทธิ์ เล่นได้แค่สล็อต ห้ามซื้อฟรีสปิน ไปที่เมนูอื่นๆ-อันดับ',
     '',
@@ -642,9 +649,11 @@ async function aiChat(userMsg, history) {
     'ถ้าลูกค้าถามว่ามีโปรอะไรบ้าง → บอกชื่อโปรทั้งหมดก่อน แล้วถามว่าสนใจโปรไหน',
     '',
     '## สไตล์',
-    'ตอบสั้น 1-2 บรรทัด เหมือนแอดมินคนจริง',
-    'ใช้ ค่ะ/นะคะ/ค่า ห้ามใช้ครับ | emoji 1-2 ตัว',
+    'ตอบสุภาพและเป็นมืออาชีพ เหมือนแอดมินจริงที่ให้บริการดี',
+    'ใช้ ค่ะ/นะคะ/ค่ะ ห้ามใช้ครับ | emoji 1 ตัวพอ ไม่ต้องใส่ทุกประโยค',
+    'ตอบตรงประเด็น ชัดเจน ไม่ใช้ภาษาเด็ก ไม่ใช้คำว่า "น้อง" บ่อยเกินไป',
     'ห้ามพูดชื่อเว็บหรือลิงก์ | ตอบยาวเกิน 3 บรรทัด ใส่ ##SPLIT## คั่น',
+    'ถ้าลูกค้าเปลี่ยนเรื่อง ให้ตอบเรื่องใหม่ทันที อย่ายึดติดกับเรื่องเดิม',
     '',
     '## Code พิเศษ',
     '##REGISTER## = สมัคร | ##RESET## = ลืมรหัส | ##ASK_SLIP## = ขอสลิป',
@@ -942,11 +951,13 @@ async function handleEvent(event) {
         return;
       }
 
-      if (info.phone && info.bank) {
+      if (info.phone || info.bank) {
+        // มีเบอร์หรือบัญชีอย่างใดอย่างหนึ่ง → ดำเนินการได้เลย
         var summary = [
           info.name ? 'ชื่อ: ' + info.name : null,
-          'เบอร์: ' + info.phone,
-          'บัญชี: ' + info.bank,
+          info.phone ? 'เบอร์: ' + info.phone : null,
+          info.bank  ? 'บัญชี: ' + info.bank  : null,
+          'ข้อความ: ' + msgText,
         ].filter(Boolean).join('\n');
         await clearResetInfo(userId);
         await tgReset(displayName, summary);
@@ -955,20 +966,9 @@ async function handleEvent(event) {
         await lineReply(replyToken, txt(doneReset));
         await addHistory(userId, 'bot', doneReset);
 
-      } else if (info.phone && !info.bank) {
-        await setResetInfo(userId, info);
-        var askBank = 'ขอเลขบัญชีธนาคารด้วยนะคะ \u{1F4CB}';
-        await lineReply(replyToken, txt(askBank));
-        await addHistory(userId, 'bot', askBank);
-
       } else {
         await setResetInfo(userId, info);
-        var missing = [];
-        if (!info.phone) missing.push('เบอร์โทร');
-        if (!info.bank) missing.push('เลขบัญชีธนาคาร');
-        if (missing.length > 0) {
-          await lineReply(replyToken, txt('🙏รบกวนแจ้งข้อมูลให้ครบเพื่อความรวดเร็วในการทำรายการนะคะ ขอ ' + missing.join(' และ ') + ' ด้วยค่ะ'));
-        }
+        await lineReply(replyToken, txt('🙏รบกวนแจ้งเบอร์โทร หรือเลขบัญชีธนาคารสักอย่างนะคะ เพื่อให้แอดมินดำเนินการให้ได้ค่ะ'));
       }
       return;
     }
@@ -988,11 +988,13 @@ async function handleEvent(event) {
     if (kycEx.bank  && !kycInfo.bank)  kycInfo.bank  = kycEx.bank;
     if (kycEx.name  && !kycInfo.name)  kycInfo.name  = kycEx.name;
 
-    if (kycInfo.phone && kycInfo.bank) {
+    if (kycInfo.phone || kycInfo.bank) {
+      // มีเบอร์หรือบัญชีอย่างใดอย่างหนึ่ง → ดำเนินการได้เลย
       var kycSummary = [
         kycInfo.name  ? 'ชื่อ: ' + kycInfo.name : null,
-        'เบอร์: '    + kycInfo.phone,
-        'บัญชี: '    + kycInfo.bank,
+        kycInfo.phone ? 'เบอร์: ' + kycInfo.phone : null,
+        kycInfo.bank  ? 'บัญชี: ' + kycInfo.bank  : null,
+        'ข้อความ: ' + msgText,
       ].filter(Boolean).join('\n');
       await clearKycInfo(userId);
       await tgKycAlert(displayName, kycSummary);
@@ -1000,19 +1002,9 @@ async function handleEvent(event) {
       await lineReply(replyToken, txt(kycDoneMsg));
       await addHistory(userId, 'bot', kycDoneMsg);
 
-    } else if (kycInfo.phone && !kycInfo.bank) {
-      await setKycInfo(userId, kycInfo);
-      var kycAskBank = 'ขอเลขบัญชีธนาคารด้วยนะคะ \u{1F4CB}';
-      await lineReply(replyToken, txt(kycAskBank));
-      await addHistory(userId, 'bot', kycAskBank);
-
     } else {
       await setKycInfo(userId, kycInfo);
-      var kycMissing = [];
-      if (!kycInfo.name)  kycMissing.push('ชื่อ-นามสกุล');
-      if (!kycInfo.phone) kycMissing.push('เบอร์โทร');
-      if (!kycInfo.bank)  kycMissing.push('เลขบัญชีธนาคาร');
-      await lineReply(replyToken, txt('ขอข้อมูลเพิ่มเติมด้วยนะคะ 🙏\n' + kycMissing.join(', ') + ' ค่ะ'));
+      await lineReply(replyToken, txt('🙏รบกวนแจ้งเบอร์โทร หรือเลขบัญชีธนาคารสักอย่างนะคะ เพื่อให้แอดมินดำเนินการให้ได้ค่ะ'));
     }
     return;
   }
@@ -1118,30 +1110,40 @@ async function handleEvent(event) {
 
   // ====== STATE: รอยอดเสียเพื่อคำนวนแคชแบ็ก ======
   if (await isCashbackState(userId)) {
-    var lossNum = msgText.replace(/,/g, '').match(/\d+(\.\d+)?/);
-    if (lossNum) {
-      var loss = parseFloat(lossNum[0]);
-      var cashback = Math.floor(loss * 0.10);
+    // ลูกค้าเปลี่ยนเรื่อง → clear แล้วไหลต่อ
+    var cbOtherTopic = isDeposit(msgText) || isWithdraw(msgText) || isReset(msgText) || isKyc(msgText) ||
+      isRegister(msgText) || isFollowUp(msgText) ||
+      ['ถอน','ฝาก','สมัคร','รหัส','แนะนำเพื่อน','ค่าคอม','คอมมิชชั่น',
+       'เช็คอิน','แรงค์','ranking','กล่องสุ่ม','วันเกิด','ทายผล','โปร'].some(function(w){ return msgText.toLowerCase().includes(w); });
+    if (cbOtherTopic) {
       await clearCashbackState(userId);
-      var cbMsg = 'ยอดเสีย ' + loss.toLocaleString() + ' บาท ได้แคชแบ็กคืน ' + cashback.toLocaleString() + ' บาทค่ะ \u{1F4B0}\nเงินเข้าอัตโนมัติหลัง 00.00 น. รอประมาณ 30 นาทีนะคะ \u{1F495}';
-      await lineReply(replyToken, txt(cbMsg));
-      await addHistory(userId, 'bot', cbMsg);
+      // ไม่ return ให้ไหลต่อ
+    } else {
+      var lossNum = msgText.replace(/,/g, '').match(/\d+(\.\d+)?/);
+      if (lossNum) {
+        var loss = parseFloat(lossNum[0]);
+        var cashback = Math.floor(loss * 0.10);
+        await clearCashbackState(userId);
+        var cbMsg = 'ยอดเสีย ' + loss.toLocaleString() + ' บาท ได้รับคืน ' + cashback.toLocaleString() + ' บาทค่ะ\nเงินเข้าอัตโนมัติหลัง 00.00 น. รอประมาณ 30 นาทีนะคะ';
+        await lineReply(replyToken, txt(cbMsg));
+        await addHistory(userId, 'bot', cbMsg);
+        return;
+      }
+      if (isDone(msgText)) {
+        await clearCashbackState(userId);
+        await lineReply(replyToken, txt('หากคุณพี่ติดปัญหาด้านใด สามารถติดต่อแอดมินได้ตลอด 24 ชั่วโมงนะคะ'));
+        return;
+      }
+      await lineReply(replyToken, txt('กรุณาแจ้งยอดเสียมาได้เลยค่ะ น้องจะคำนวณให้ทันทีเลยค่ะ'));
       return;
     }
-    if (isDone(msgText)) {
-      await clearCashbackState(userId);
-      await lineReply(replyToken, txt('หากคุณพี่ติดปัญหาด้านใดติดต่อแอดมิน 𝟐𝟒 ชม.นะคะ🥰'));
-      return;
-    }
-    await lineReply(replyToken, txt('บอกยอดเสียมาได้เลยนะคะ น้องจะคำนวนให้ค่ะ \u{1F4B0}'));
-    return;
   }
 
   // ====== แนะนำเพื่อน ======
   var referralWords = ['แนะนำเพื่อน','ชวนเพื่อน','พาเพื่อน','referral','รีเฟอรัล','ลิงก์เพื่อน','ลิ้งเพื่อน','แชร์เพื่อน','เพื่อนเล่น','เพื่อนสมัคร','ได้จากเพื่อน','ได้ยอดเพื่อน'];
   var isReferralQ = referralWords.some(function(w) { return msgText.toLowerCase().includes(w); });
   if (isReferralQ) {
-    var refMsg = 'ระบบแนะนำเพื่อนได้ยอดเสียของเพื่อน 3% ทุกวันเลยค่ะ \u{1F46B}\n\nเงินเข้าออโต้ทุกวัน 00.00 น. ไม่เกิน 00.30 น.\n(เพื่อนต้องมีรายการเล่นนะคะ ถึงจะได้ยอด)\n\nลิงก์แนะนำเพื่อนอยู่ที่หน้า "แนะนำเพื่อน" ในเว็บค่ะ\nกดก็อปลิงก์แล้วส่งให้เพื่อนกดสมัครได้เลยนะคะ \u{1F517}';
+    var refMsg = '\u{1F91D} เงื่อนไขรับเครดิตแนะนำเพื่อน\n\n✅ คำนวณจากยอดฝากเพื่อน 0.7%\n✅ กดรับได้ทุกวันศุกร์หลังเวลา 00.30 น.เป็นต้นไป\n\n🏧 ถอนขั้นต่ำ 1 บาท ทำยอด 10 เท่า ถอนได้ 1 เท่า\n(เล่นได้แค่สล็อต ห้ามซื้อฟรีสปิน ผิดกฎงดถอน)\n\nไปที่เมนูอื่นๆ → แนะนำเพื่อน\nลิงก์แนะนำเพื่อนอยู่ที่หน้า "แนะนำเพื่อน" ในเว็บค่ะ กดก็อปลิงก์ส่งให้เพื่อนสมัครได้เลยนะคะ';
     await lineReply(replyToken, txt(refMsg));
     await addHistory(userId, 'bot', refMsg);
     return;
