@@ -546,7 +546,7 @@ async function aiChat(userMsg, history) {
     : '';
 
   var lines = [
-    'คุณคือ "น้องนีน่า" แอดมินเว็บพนันออนไลน์ ผู้หญิง น่ารัก บริการดีมาก',
+    'คุณคือ "น้องโพนี่" แอดมินเว็บพนันออนไลน์ ผู้หญิง น่ารัก บริการดีมาก',
     '',
     '## วิธีคิดก่อนตอบ (หัวใจสำคัญ)',
     'ก่อนตอบทุกครั้ง ให้คิด:',
@@ -828,7 +828,7 @@ async function handleEvent(event) {
     var mediaKey = 'media:' + userId;
     if (!(await redis.get(mediaKey))) {
       await redis.set(mediaKey, '1', 'EX', 60);
-      await lineReply(replyToken, txt('มีอะไรให้น้องนีน่าช่วยไหมคะ? \u{1F495}'));
+      await lineReply(replyToken, txt('มีอะไรให้น้องโพนี่ช่วยไหมคะ? \u{1F495}'));
     }
     return;
   }
@@ -843,30 +843,22 @@ async function handleEvent(event) {
       var vision = await analyzeImage(base64);
 
       if (vision.includes('##SLIP##')) {
-        var curState = await getSlipState(userId);
-
-        if (curState && (curState.step === 'waiting_info' || curState.step === 'waiting_confirm')) {
-          var alreadyAskedSlip = await redis.get('asked_info:' + userId);
-          if (alreadyAskedSlip || await isHandled(userId)) {
-            await clearSlipState(userId);
-            await tgSlipAlert(displayName, 'ลูกค้าส่งสลิปมาในแชท (แนบที่เว็บไม่ได้)');
-            await markHandled(userId);
-            var slipInChatMsg = 'รับสลิปแล้วค่ะ \u{1F4CB}\nน้องนีน่ากำลังดำเนินการให้นะคะ \u23F0';
-            await lineReply(replyToken, txt(slipInChatMsg));
-            await addHistory(userId, 'bot', slipInChatMsg);
-          } else {
-            await redis.set('asked_info:' + userId, '1', 'EX', 3600);
-            await setSlipState(userId, { step: 'waiting_info', ts: Date.now() });
-            var needPhoneMsg = 'รับสลิปแล้วค่ะ \u{1F4CB}\nขอเบอร์โทรหรือเลขบัญชีธนาคารด้วยนะคะ น้องแนบให้เองเลยค่ะ \u{1F495}';
-            await lineReply(replyToken, txt(needPhoneMsg));
-            await addHistory(userId, 'bot', needPhoneMsg);
-          }
+        // ลูกค้าส่งสลิปมา → ขอข้อมูลแล้วส่ง TG เลย ไม่บอกให้แนบเว็บ
+        var alreadyAskedSlip2 = await redis.get('asked_info:' + userId);
+        if (alreadyAskedSlip2 || await isHandled(userId)) {
+          // ขอไปแล้ว หรือส่ง TG แล้ว → รับทราบ
+          var slipDoneMsg = 'รับสลิปแล้วค่ะ กำลังดำเนินการให้นะคะ รอสักครู่ค่ะ \u23F0';
+          await lineReply(replyToken, txt(slipDoneMsg));
+          await addHistory(userId, 'bot', slipDoneMsg);
         } else {
-          var slipMsg = 'เอาสลิปนี้ไปแนบที่หน้าเว็บด้วยนะคะ \u{1F4F1}\nเงินจะเข้าอัตโนมัติภายใน 1-3 นาทีค่ะ';
-          await lineReply(replyToken, txt(slipMsg));
-          await setSlipState(userId, { step: 'waiting_confirm', ts: Date.now() });
+          // ยังไม่ได้ขอข้อมูล → ขอเบอร์/บัญชีแล้วส่ง TG
+          await redis.set('asked_info:' + userId, '1', 'EX', 3600);
+          await setSlipState(userId, { step: 'waiting_info', ts: Date.now() });
+          await tgSlipAlert(displayName, 'ลูกค้าส่งสลิปมาในแชท รอข้อมูลเพิ่มเติม');
           await markSlipSent(userId);
-          await addHistory(userId, 'bot', slipMsg);
+          var askInfoMsg = 'รับสลิปแล้วค่ะ \u{1F4CB}\nขอเบอร์โทรหรือเลขบัญชีธนาคารด้วยนะคะ เพื่อดำเนินการให้ค่ะ';
+          await lineReply(replyToken, txt(askInfoMsg));
+          await addHistory(userId, 'bot', askInfoMsg);
         }
         return;
       }
@@ -901,11 +893,19 @@ async function handleEvent(event) {
       });
 
       if (isDepositCtx) {
-        var slipFbMsg = 'เอาสลิปนี้ไปแนบที่หน้าเว็บด้วยนะคะ \u{1F4F1}\nเงินจะเข้าอัตโนมัติภายใน 1-3 นาทีค่ะ';
-        await lineReply(replyToken, txt(slipFbMsg));
-        await setSlipState(userId, { step: 'waiting_confirm', ts: Date.now() });
-        await markSlipSent(userId);
-        await addHistory(userId, 'bot', slipFbMsg);
+        // มี context ฝากเงิน → ขอข้อมูลแล้วส่ง TG
+        var alreadyAskedDep = await redis.get('asked_info:' + userId);
+        if (!alreadyAskedDep) {
+          await redis.set('asked_info:' + userId, '1', 'EX', 3600);
+          await tgSlipAlert(displayName, 'ลูกค้าส่งสลิปในแชท (context ฝาก)');
+          await markSlipSent(userId);
+          await setSlipState(userId, { step: 'waiting_info', ts: Date.now() });
+          var slipFbMsg = 'รับสลิปแล้วค่ะ \u{1F4CB}\nขอเบอร์โทรหรือเลขบัญชีธนาคารด้วยนะคะ เพื่อดำเนินการให้ค่ะ';
+          await lineReply(replyToken, txt(slipFbMsg));
+          await addHistory(userId, 'bot', slipFbMsg);
+        } else {
+          await lineReply(replyToken, txt('รับแล้วค่ะ กำลังดำเนินการให้นะคะ รอสักครู่ค่ะ \u23F0'));
+        }
       } else {
         var askMsg2 = 'มาทำรายการอะไรคะ? \u{1F495}';
         await lineReply(replyToken, txt(askMsg2));
@@ -922,7 +922,7 @@ async function handleEvent(event) {
 
   // ====== ไม่ active 2 ชั่วโมง ======
   if (isInactive) {
-    await lineReply(replyToken, txt('มีอะไรให้น้องนีน่าช่วยไหมคะ? \u{1F495}'));
+    await lineReply(replyToken, txt('มีอะไรให้น้องโพนี่ช่วยไหมคะ? \u{1F495}'));
     return;
   }
 
@@ -1045,7 +1045,7 @@ async function handleEvent(event) {
       ].filter(Boolean).join('\n');
       await tgSlipAlert(displayName, conSum);
       await markHandled(userId);
-      var doneMsg = 'รับแล้วค่ะ \u{1F4CB}\nน้องนีน่ากำลังดำเนินการให้นะคะ \u23F0';
+      var doneMsg = 'รับแล้วค่ะ \u{1F4CB}\nน้องโพนี่กำลังดำเนินการให้นะคะ \u23F0';
       await lineReply(replyToken, txt(doneMsg));
       await addHistory(userId, 'bot', doneMsg);
       return;
@@ -1060,7 +1060,7 @@ async function handleEvent(event) {
         await lineReply(replyToken, txt(askMsg));
         await addHistory(userId, 'bot', askMsg);
       } else {
-        await lineReply(replyToken, txt('น้องนีน่ากำลังดำเนินการให้อยู่นะคะ รอสักครู่ค่ะ \u23F0'));
+        await lineReply(replyToken, txt('น้องโพนี่กำลังดำเนินการให้อยู่นะคะ รอสักครู่ค่ะ \u23F0'));
       }
       return;
     }
@@ -1088,7 +1088,7 @@ async function handleEvent(event) {
       ].filter(Boolean).join('\n');
       await tgSlipAlert(displayName, infoSum);
       await markHandled(userId);
-      var doneInfo = 'รับแล้วค่ะ \u{1F4CB}\nน้องนีน่ากำลังดำเนินการให้นะคะ \u23F0';
+      var doneInfo = 'รับแล้วค่ะ กำลังดำเนินการให้นะคะ รอสักครู่ค่ะ \u23F0';
       await lineReply(replyToken, txt(doneInfo));
       await addHistory(userId, 'bot', doneInfo);
       return;
@@ -1101,12 +1101,12 @@ async function handleEvent(event) {
       var urgentText = '\u{1F6A8}\u{1F6A8} ลูกค้ายืนยันว่ายังไม่เข้า!\nชื่อไลน์: ' + displayName + '\nข้อความ: ' + msgText + '\n\n⚡ ช่วยตรวจสอบด่วนด้วยครับ';
       await tgMain(urgentText, stopResumeMarkup(userId));
       await tgMain(urgentText, stopResumeMarkup(userId));
-      await lineReply(replyToken, txt('รับทราบแล้วค่ะ น้องนีน่าส่งเรื่องให้แอดมินด่วนแล้วนะคะ \u23F0\nรอสักครู่นะคะ'));
+      await lineReply(replyToken, txt('รับทราบแล้วค่ะ น้องโพนี่ส่งเรื่องให้แอดมินด่วนแล้วนะคะ \u23F0\nรอสักครู่นะคะ'));
       return;
     }
 
     if (await isHandled(userId)) {
-      await lineReply(replyToken, txt('น้องนีน่ากำลังดำเนินการให้อยู่นะคะ รอสักครู่ค่ะ \u23F0'));
+      await lineReply(replyToken, txt('น้องโพนี่กำลังดำเนินการให้อยู่นะคะ รอสักครู่ค่ะ \u23F0'));
       return;
     }
 
@@ -1197,7 +1197,7 @@ async function handleEvent(event) {
       await addHistory(userId, 'bot', closedCancelMsg);
     } else {
       await tgAlert(displayName, 'ยกเลิกการถอน: ' + msgText, ts, userId);
-      var cancelMsg2 = 'รับเรื่องแล้วค่ะ \u{1F4CB}\nน้องนีน่ากำลังดำเนินการให้นะคะ \u23F0';
+      var cancelMsg2 = 'รับเรื่องแล้วค่ะ \u{1F4CB}\nน้องโพนี่กำลังดำเนินการให้นะคะ \u23F0';
       await lineReply(replyToken, txt(cancelMsg2));
       await addHistory(userId, 'bot', cancelMsg2);
     }
@@ -1213,7 +1213,7 @@ async function handleEvent(event) {
       await addHistory(userId, 'bot', closedOverdueMsg);
     } else {
       await tgAlert(displayName, 'ถอนเกิน 10 นาที: ' + msgText, ts, userId);
-      var overdueMsg2 = 'รับเรื่องแล้วค่ะ \u{1F4CB} น้องนีน่ากำลังดำเนินการให้นะคะ \u23F0';
+      var overdueMsg2 = 'รับเรื่องแล้วค่ะ \u{1F4CB} น้องโพนี่กำลังดำเนินการให้นะคะ \u23F0';
       await lineReply(replyToken, txt(overdueMsg2));
       await addHistory(userId, 'bot', overdueMsg2);
     }
@@ -1274,7 +1274,7 @@ async function handleEvent(event) {
 
   if (isShortNotIn && !hasWithdrawCtx) {
     if (await isHandled(userId)) {
-      await lineReply(replyToken, txt('รับทราบแล้วนะคะ น้องนีน่ากำลังดำเนินการให้อยู่ค่ะ \u23F0'));
+      await lineReply(replyToken, txt('รับทราบแล้วนะคะ น้องโพนี่กำลังดำเนินการให้อยู่ค่ะ \u23F0'));
       return;
     }
     if (await hasSlipSent(userId)) {
@@ -1359,7 +1359,7 @@ async function handleEvent(event) {
         await lineReply(replyToken, txt(askPhoneMsg));
         await addHistory(userId, 'bot', askPhoneMsg);
       } else {
-        await lineReply(replyToken, txt('น้องนีน่ากำลังดำเนินการให้อยู่นะคะ รอสักครู่ค่ะ \u23F0'));
+        await lineReply(replyToken, txt('น้องโพนี่กำลังดำเนินการให้อยู่นะคะ รอสักครู่ค่ะ \u23F0'));
       }
     } else {
       var askSlip = 'ขอสลิปมาด้วยนะคะ \u{1F4B8}';
@@ -1376,7 +1376,7 @@ async function handleEvent(event) {
   }
   if (aiReply.includes('##ADMIN##') || aiReply.includes('##ADMIN_LINK##')) {
     await tgAlert(displayName, msgText + ' [ต้องการแอดมิน]', ts, userId);
-    var adminMsg = 'น้องนีน่ากำลังดำเนินการให้นะคะ \u23F0';
+    var adminMsg = 'น้องโพนี่กำลังดำเนินการให้นะคะ \u23F0';
     await lineReply(replyToken, txt(adminMsg));
     await addHistory(userId, 'bot', adminMsg);
     return;
@@ -1531,7 +1531,7 @@ app.post('/telegram', async function(req, res) {
     }
     if (text === '/status') {
       await tgMain(
-        '\u{1F916} <b>น้องนีน่า Status</b>\n\n' +
+        '\u{1F916} <b>น้องโพนี่ Status</b>\n\n' +
         '\u2705 Bot: Online\n' +
         '\u{1F9E0} AI: Claude claude-sonnet-4-6\n' +
         '\u{1F4E6} Repo: ' + GITHUB_REPO + '\n\n' +
@@ -1558,7 +1558,7 @@ app.post('/webhook', async function(req, res) {
 });
 
 app.get('/', function(req, res) {
-  res.send('น้องนีน่า Admin Bot |"น้องนีน่า Admin Bot | UFA PRO99 | v1.0"| v3.2');
+  res.send('น้องโพนี่ Admin Bot |"น้องโพนี่ Admin Bot | UFA PRO99 | v1.0"| v3.2');
 });
 
 const PORT = process.env.PORT || 3000;
